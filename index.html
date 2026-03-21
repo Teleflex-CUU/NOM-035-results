@@ -3,1368 +3,2124 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Panel Médico NOM-035 — Teleflex</title>
+<title>NOM-035 | Teleflex — Dr. Jaime Iván Martínez Espinoza</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.18.5/package/dist/xlsx.full.min.js"></script>
 <style>
 :root{
-  --navy:#0D2B5A;--navy2:#1a3f7a;--navy3:#091e42;--navy-fade:rgba(13,43,90,.06);
-  --teal:#00897B;--teal-bg:#E0F2F1;
-  --amber:#F59E0B;--amber-bg:#FEF3C7;
-  --red:#DC2626;--red-bg:#FEE2E2;
-  --green:#16A34A;--green-bg:#D1FAE5;
-  --purple:#7C3AED;--purple-bg:#EDE9FE;
-  --bg:#F0F4FA;--sidebar-bg:#0D2B5A;
-  --card:#fff;--border:#E2E8F4;
-  --text:#0F1729;--text2:#374151;--text3:#6B7280;--text4:#9CA3AF;
-  --shadow:0 1px 8px rgba(13,43,90,.08);--shadow-md:0 4px 20px rgba(13,43,90,.12);
-  --r:12px;--r-sm:8px;--r-lg:18px;
-  --font:'DM Sans',sans-serif;--font-head:'Syne',sans-serif;
+  --navy:#0D2B5A;--navy-light:#1a3f7a;--navy-dark:#091e42;
+  --accent:#1565C0;--accent-light:#1976D2;
+  --success:#2E7D32;--success-light:#388E3C;--success-bg:#E8F5E9;
+  --warn:#F57F17;--warn-bg:#FFF8E1;
+  --danger:#B71C1C;--danger-light:#C62828;--danger-bg:#FFEBEE;
+  --info:#0277BD;--info-bg:#E1F5FE;
+  --purple:#6A1B9A;--purple-bg:#F3E5F5;
+  --bg:#F4F6FB;--card:#fff;--border:#DDE3EE;
+  --text:#1A2340;--text2:#4A5568;--text3:#718096;
+  --shadow:0 2px 12px rgba(13,43,90,.08);--shadow-md:0 4px 24px rgba(13,43,90,.13);
+  --radius:10px;--radius-sm:6px;--radius-lg:16px;
+  --font:'Inter',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:var(--bg);color:var(--text);
-  font-size:14px;line-height:1.5;display:flex;min-height:100vh}
-
-/* ── SIDEBAR ── */
-#sidebar{width:240px;background:var(--sidebar-bg);flex-shrink:0;
-  display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;
-  overflow-y:auto;transition:transform .3s}
-.sb-brand{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
-.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.sb-logo-icon{width:36px;height:36px;background:rgba(255,255,255,.12);
-  border-radius:10px;display:flex;align-items:center;justify-content:center}
-.sb-logo-icon svg{width:20px;height:20px}
-.sb-company{color:#fff;font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:-.2px}
-.sb-sub{color:rgba(255,255,255,.5);font-size:11px;line-height:1.4;margin-top:4px}
-.sb-doctor{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
-.sb-doctor-name{color:rgba(255,255,255,.9);font-size:12px;font-weight:600}
-.sb-doctor-ced{color:rgba(255,255,255,.45);font-size:11px}
-
-.sb-nav{padding:12px 10px;flex:1}
-.sb-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);
-  letter-spacing:1.5px;text-transform:uppercase;padding:8px 10px 4px;margin-top:8px}
-.sb-btn{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;
-  border-radius:var(--r-sm);background:none;border:none;cursor:pointer;
-  color:rgba(255,255,255,.7);font-family:var(--font);font-size:13px;font-weight:500;
-  text-align:left;transition:all .15s;margin-bottom:2px}
-.sb-btn:hover{background:rgba(255,255,255,.1);color:#fff}
-.sb-btn.active{background:rgba(255,255,255,.18);color:#fff;font-weight:600}
-.sb-btn .sb-icon{width:28px;height:28px;border-radius:7px;display:flex;
-  align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
-  background:rgba(255,255,255,.1)}
-.sb-btn.active .sb-icon{background:rgba(255,255,255,.2)}
-.sb-badge{margin-left:auto;background:rgba(255,255,255,.2);color:#fff;
-  border-radius:12px;padding:1px 8px;font-size:10px;font-weight:700}
-.sb-badge.red{background:#ef4444}
-
-.sb-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,.1)}
-.sb-status{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.5)}
-#conn-dot{width:7px;height:7px;border-radius:50%;background:#ef4444;flex-shrink:0}
-#conn-dot.online{background:#4ade80}
-
-/* ── TOPBAR ── */
-#topbar{position:fixed;top:0;left:240px;right:0;height:58px;background:var(--card);
-  border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;
-  padding:0 24px;gap:16px;box-shadow:var(--shadow)}
-.topbar-title{font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--navy);flex:1;letter-spacing:-.3px}
-.topbar-right{display:flex;align-items:center;gap:10px}
-#sync-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;
-  border-radius:var(--r-sm);border:1.5px solid var(--border);background:#fff;
-  cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;color:var(--text2);
-  transition:all .15s}
-#sync-btn:hover{border-color:var(--navy);color:var(--navy)}
-#sync-btn.syncing{opacity:.6;cursor:not-allowed}
-.last-sync{font-size:11px;color:var(--text4)}
-
-/* ── CONTENT ── */
-#content{margin-left:240px;margin-top:58px;padding:24px;flex:1;min-width:0}
-.page{display:none}.page.active{display:block;animation:fadein .25s ease}
-@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-
-/* ── SECTION HEADER ── */
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;
-  margin-bottom:24px;gap:16px;flex-wrap:wrap}
-.page-title{font-family:var(--font-head);font-size:22px;font-weight:800;
-  color:var(--navy);letter-spacing:-.4px}
-.page-sub{font-size:13px;color:var(--text3);margin-top:2px}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+a{color:var(--accent);text-decoration:none}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* ── NAVBAR ── */
+#navbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:var(--navy);
+  display:flex;align-items:center;gap:0;padding:0 16px;height:56px;
+  box-shadow:0 2px 12px rgba(9,30,66,.35)}
+#navbar .brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:15px;white-space:nowrap;margin-right:12px}
+#navbar .brand span{font-weight:300;opacity:.7;font-size:12px;display:block;line-height:1}
+#navbar .brand-sub{font-size:11px;color:rgba(255,255,255,.55);white-space:nowrap}
+.nav-scroll{display:flex;align-items:center;gap:2px;overflow-x:auto;flex:1;
+  scrollbar-width:none;-ms-overflow-style:none}
+.nav-scroll::-webkit-scrollbar{display:none}
+.nav-btn{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:var(--radius-sm);
+  background:none;border:none;color:rgba(255,255,255,.75);cursor:pointer;white-space:nowrap;
+  font-size:12.5px;font-family:var(--font);font-weight:500;transition:all .18s}
+.nav-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.nav-btn.active{background:rgba(255,255,255,.18);color:#fff;font-weight:600}
+.nav-badge{background:rgba(255,255,255,.25);color:#fff;border-radius:10px;
+  padding:1px 7px;font-size:10px;font-weight:700;min-width:18px;text-align:center}
+.nav-badge.alert{background:#ef5350}
+#conn-dot{width:8px;height:8px;border-radius:50%;background:#ef5350;
+  flex-shrink:0;margin-left:8px;transition:background .3s;
+  box-shadow:0 0 0 2px rgba(255,255,255,.2)}
+#conn-dot.online{background:#66BB6A}
+/* ── LAYOUT ── */
+#app{margin-top:56px;padding:24px;max-width:1400px;margin-left:auto;margin-right:auto}
+.page{display:none}
+.page.active{display:block}
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  border:1px solid var(--border);padding:20px;margin-bottom:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.card-title{font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.card-title svg{flex-shrink:0}
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  border:1px solid var(--border);padding:18px 20px;display:flex;flex-direction:column;gap:4px}
+.stat-card .label{font-size:11.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.stat-card .value{font-size:28px;font-weight:800;color:var(--navy);line-height:1.1}
+.stat-card .sub{font-size:11.5px;color:var(--text3)}
+.stat-card.success{border-left:4px solid var(--success)}
+.stat-card.warn{border-left:4px solid var(--warn)}
+.stat-card.danger{border-left:4px solid var(--danger)}
+.stat-card.info{border-left:4px solid var(--info)}
+/* ── CHARTS ── */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+.chart-wrap{position:relative;height:260px}
+/* ── TABLES ── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--navy);color:#fff;padding:10px 12px;text-align:left;
+  font-weight:600;font-size:12px;letter-spacing:.3px;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s}
+tbody tr:hover{background:#f0f4ff}
+tbody td{padding:9px 12px;vertical-align:middle}
+tbody tr:last-child{border-bottom:none}
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;white-space:nowrap}
+.badge-null{background:#E8EAF6;color:#3949AB}
+.badge-low{background:var(--success-bg);color:var(--success)}
+.badge-med{background:var(--warn-bg);color:var(--warn)}
+.badge-high{background:#FBE9E7;color:#BF360C}
+.badge-vhigh{background:var(--danger-bg);color:var(--danger)}
+.badge-active{background:var(--success-bg);color:var(--success)}
+.badge-pending{background:var(--warn-bg);color:var(--warn)}
+.badge-closed{background:var(--border);color:var(--text3)}
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
-  border-radius:var(--r-sm);border:none;cursor:pointer;font-family:var(--font);
+  border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:var(--font);
   font-size:13px;font-weight:600;transition:all .15s;white-space:nowrap}
-.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy2)}
-.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{opacity:.9}
-.btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text2)}.btn-outline:hover{border-color:var(--navy);color:var(--navy)}
-.btn-sm{padding:6px 12px;font-size:12px}
-.btn-ghost{background:none;border:none;color:var(--text3);cursor:pointer;font-family:var(--font);font-size:12px;padding:4px 8px;border-radius:4px}.btn-ghost:hover{background:var(--bg);color:var(--navy)}
-
-/* ── STAT CARDS ── */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:16px;margin-bottom:24px}
-.stat{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);
-  border:1px solid var(--border);padding:18px 20px;position:relative;overflow:hidden}
-.stat::before{content:'';position:absolute;right:-20px;top:-20px;
-  width:80px;height:80px;border-radius:50%;opacity:.06}
-.stat.s-blue::before{background:var(--navy)}
-.stat.s-teal::before{background:var(--teal)}
-.stat.s-red::before{background:var(--red)}
-.stat.s-green::before{background:var(--green)}
-.stat.s-amber::before{background:var(--amber)}
-.stat.s-purple::before{background:var(--purple)}
-.stat-label{font-size:11px;font-weight:700;color:var(--text4);
-  text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
-.stat-val{font-family:var(--font-head);font-size:32px;font-weight:800;
-  color:var(--navy);line-height:1;letter-spacing:-1px;margin-bottom:4px}
-.stat-sub{font-size:12px;color:var(--text3)}
-.stat-trend{font-size:11px;font-weight:600;color:var(--green)}
-.stat-trend.down{color:var(--red)}
-
-/* ── CARDS ── */
-.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);
-  border:1px solid var(--border);margin-bottom:20px}
-.card-head{padding:16px 20px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.card-title{font-family:var(--font-head);font-size:14px;font-weight:700;
-  color:var(--navy);display:flex;align-items:center;gap:7px}
-.card-body{padding:20px}
-.charts-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.chart-wrap{position:relative;height:240px}
-@media(max-width:860px){.charts-2col{grid-template-columns:1fr}}
-
-/* ── TABLES ── */
-.tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{background:var(--navy-fade);color:var(--navy);padding:10px 14px;
-  text-align:left;font-weight:700;font-size:11px;letter-spacing:.4px;
-  text-transform:uppercase;white-space:nowrap;border-bottom:2px solid var(--border)}
-tbody tr{border-bottom:1px solid var(--border);transition:background .12s}
-tbody tr:hover{background:#F7F9FD}
-tbody td{padding:10px 14px;vertical-align:middle}
-tbody tr:last-child{border-bottom:none}
-
-/* ── BADGES ── */
-.badge{display:inline-flex;align-items:center;padding:3px 10px;
-  border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
-.b-null{background:#EDE9FE;color:#5B21B6}
-.b-low{background:var(--green-bg);color:#065F46}
-.b-med{background:var(--amber-bg);color:#92400E}
-.b-high{background:#FEE2E2;color:#991B1B}
-.b-vhigh{background:#FCE7F3;color:#831843}
-.b-info{background:#DBEAFE;color:#1E40AF}
-.b-gray{background:#F3F4F6;color:#374151}
-
-/* ── FILTERS / SEARCH ── */
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
-.filter-bar input{padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);
-  font-family:var(--font);font-size:13px;color:var(--text);max-width:280px;width:100%}
-.filter-bar input:focus{outline:none;border-color:var(--navy)}
-.filter-bar select{padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);
-  font-family:var(--font);font-size:13px;color:var(--text);cursor:pointer}
-.filter-bar select:focus{outline:none;border-color:var(--navy)}
-
-/* ── DETAIL PANEL ── */
-.detail-panel{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow-md);
-  border:1px solid var(--border);padding:24px;margin-bottom:20px}
-.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
-.detail-item .di-label{font-size:11px;font-weight:700;color:var(--text4);
-  text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
-.detail-item .di-val{font-size:14px;font-weight:600;color:var(--text)}
-
-/* ── RISK BAR ── */
-.risk-breakdown{display:flex;flex-direction:column;gap:10px;padding:4px 0}
-.rb-row{display:flex;align-items:center;gap:12px}
-.rb-label{font-size:12px;font-weight:600;color:var(--text2);width:140px;flex-shrink:0}
-.rb-bar-bg{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
-.rb-bar{height:100%;border-radius:4px;transition:width .6s ease}
-.rb-val{font-size:12px;font-weight:700;color:var(--text);width:30px;text-align:right}
-
-/* ── CAT BREAKDOWN COLORS ── */
-.bar-navy{background:var(--navy)}
-.bar-teal{background:var(--teal)}
-.bar-amber{background:var(--amber)}
-.bar-red{background:var(--red)}
-.bar-purple{background:var(--purple)}
-.bar-green{background:var(--green)}
-.bar-orange{background:#EA580C}
-
-/* ── TOAST ── */
-#toast-ctr{position:fixed;bottom:24px;right:24px;z-index:9000;display:flex;flex-direction:column;gap:8px}
-.toast{background:#fff;border-radius:var(--r);box-shadow:var(--shadow-md);padding:12px 16px;
-  font-size:13px;font-weight:500;min-width:220px;display:flex;align-items:center;gap:10px;
-  border-left:4px solid var(--navy);animation:slideup .2s ease}
-.toast.ok{border-color:var(--green)}.toast.err{border-color:var(--red)}.toast.warn{border-color:var(--amber)}
-@keyframes slideup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-
-/* ── EMPTY ── */
-.empty{text-align:center;padding:48px 24px;color:var(--text3)}
-.empty svg{margin-bottom:12px;opacity:.3}
-
-/* ── MODAL ── */
-.modal-ov{position:fixed;inset:0;background:rgba(9,30,66,.5);z-index:500;
+.btn-primary{background:var(--navy);color:#fff}.btn-primary:hover{background:var(--navy-light)}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:var(--success-light)}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:var(--danger-light)}
+.btn-outline{background:none;border:1.5px solid var(--border);color:var(--text2)}.btn-outline:hover{border-color:var(--navy);color:var(--navy)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap}
+/* ── FORMS ── */
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+label{font-size:12px;font-weight:600;color:var(--text2)}
+input,select,textarea{padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-family:var(--font);font-size:13px;color:var(--text);background:#fff;
+  transition:border-color .15s;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,43,90,.1)}
+textarea{resize:vertical;min-height:80px}
+.search-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.search-bar input{max-width:320px}
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(9,30,66,.55);z-index:2000;
   display:flex;align-items:center;justify-content:center;padding:16px;
-  opacity:0;pointer-events:none;transition:opacity .2s}
-.modal-ov.open{opacity:1;pointer-events:all}
-.modal{background:#fff;border-radius:var(--r-lg);box-shadow:var(--shadow-md);
-  width:100%;max-width:620px;max-height:88vh;display:flex;flex-direction:column;
-  transform:scale(.96);transition:transform .2s}
-.modal-ov.open .modal{transform:none}
-.modal.wide{max-width:880px}
-.modal-head{padding:18px 22px;border-bottom:1px solid var(--border);
+  opacity:0;pointer-events:none;transition:opacity .18s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);
+  width:100%;max-width:680px;max-height:90vh;display:flex;flex-direction:column;
+  transform:translateY(20px);transition:transform .18s}
+.modal-overlay.open .modal{transform:none}
+.modal.modal-lg{max-width:900px}
+.modal.modal-xl{max-width:1100px}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.modal-title{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--navy)}
-.modal-x{background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;
-  width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px}
-.modal-x:hover{background:var(--bg)}
+.modal-title{font-size:16px;font-weight:700;color:var(--navy)}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text3);
+  font-size:20px;line-height:1;padding:4px;border-radius:4px}
+.modal-close:hover{background:var(--bg);color:var(--text)}
 .modal-body{padding:22px;overflow-y:auto;flex:1}
-
-/* ── CONFIG FORM ── */
-.cfg-field{margin-bottom:14px}
-.cfg-field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
-.cfg-field input{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);
-  font-family:var(--font);font-size:13px;color:var(--text)}
-.cfg-field input:focus{outline:none;border-color:var(--navy)}
-.cfg-hint{font-size:11px;color:var(--text4);margin-top:4px}
-
+.modal-footer{padding:16px 22px;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:10px;flex-shrink:0}
+/* ── TOAST ── */
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-md);
+  padding:12px 16px;font-size:13px;font-weight:500;min-width:240px;max-width:360px;
+  display:flex;align-items:center;gap:10px;border-left:4px solid var(--navy);
+  animation:slideUp .25s ease;pointer-events:none}
+.toast.success{border-color:var(--success);color:var(--success)}
+.toast.error{border-color:var(--danger);color:var(--danger)}
+.toast.warn{border-color:var(--warn);color:var(--warn)}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+/* ── PRINT MODAL ── */
+#print-modal iframe{width:100%;height:65vh;border:none;border-radius:var(--radius-sm)}
+/* ── SECTION HEADER ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.section-title{font-size:20px;font-weight:800;color:var(--navy)}
+.section-sub{font-size:13px;color:var(--text3);margin-top:2px}
+/* ── RISK METER ── */
+.risk-meter{display:flex;gap:4px;align-items:center;margin-top:8px}
+.risk-seg{flex:1;height:8px;border-radius:4px;background:var(--border)}
+.risk-seg.null{background:#9FA8DA}
+.risk-seg.low{background:#66BB6A}
+.risk-seg.med{background:#FFA726}
+.risk-seg.high{background:#EF6C00}
+.risk-seg.vhigh{background:var(--danger)}
+/* ── QUESTIONNAIRE ── */
+.q-section{margin-bottom:20px}
+.q-section-title{font-size:13px;font-weight:700;color:var(--navy);
+  background:#EEF2FF;padding:8px 12px;border-radius:var(--radius-sm);margin-bottom:10px}
+.q-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.q-item:last-child{border-bottom:none}
+.q-text{font-size:13px;color:var(--text)}
+.q-opts{display:flex;gap:6px;flex-wrap:wrap}
+.q-opt{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff;cursor:pointer;font-size:12px;font-weight:600;
+  color:var(--text2);transition:all .15s;font-family:var(--font)}
+.q-opt:hover{border-color:var(--navy);color:var(--navy)}
+.q-opt.selected{background:var(--navy);color:#fff;border-color:var(--navy)}
+/* ── POLICY ── */
+.commitment-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
+.commitment-item:last-child{border-bottom:none}
+.check-circle{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);
+  flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;margin-top:1px}
+.check-circle.checked{background:var(--success);border-color:var(--success);color:#fff}
+/* ── PROGRESS BAR ── */
+.progress{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-bar{height:100%;border-radius:4px;background:var(--navy);transition:width .4s}
+.progress-bar.success{background:var(--success)}
+.progress-bar.warn{background:var(--warn)}
+.progress-bar.danger{background:var(--danger)}
+/* ── HEADCOUNT ── */
+.hc-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+/* ── TABS ── */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px}
+.tab-btn{padding:9px 18px;background:none;border:none;cursor:pointer;
+  font-family:var(--font);font-size:13px;font-weight:600;color:var(--text3);
+  border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab-btn.active{color:var(--navy);border-bottom-color:var(--navy)}
+.tab-btn:hover{color:var(--navy)}
 /* ── RESPONSIVE ── */
-@media(max-width:768px){
-  #sidebar{transform:translateX(-100%)}
-  #sidebar.open{transform:none}
-  #content{margin-left:0}
-  #topbar{left:0}
+@media(max-width:600px){
+  #app{padding:12px}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .form-row{grid-template-columns:1fr}
 }
+/* ── PRINT STYLES ── */
+@media print{
+  #navbar,#toast-container,.btn-group,.section-header .btn,
+  .modal-overlay{display:none!important}
+  #app{margin-top:0!important;padding:0}
+  .card{box-shadow:none;border:1px solid #ccc}
+  .print-header{display:block!important}
+}
+.print-header{display:none;text-align:center;margin-bottom:20px;padding:16px;
+  border-bottom:3px solid var(--navy)}
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:2.5px dashed var(--border);border-radius:var(--radius);
+  padding:32px;text-align:center;cursor:pointer;transition:all .2s;color:var(--text3)}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--navy);background:#f0f4ff;color:var(--navy)}
+.upload-zone p{margin-top:8px;font-size:13px}
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:48px 24px;color:var(--text3)}
+.empty-state svg{margin-bottom:12px;opacity:.4}
+.empty-state p{font-size:14px}
+/* ── PILL FILTERS ── */
+.pill-group{display:flex;gap:6px;flex-wrap:wrap}
+.pill{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff;cursor:pointer;font-size:12px;font-weight:600;
+  color:var(--text2);transition:all .15s;font-family:var(--font)}
+.pill:hover,.pill.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<nav id="sidebar">
-  <div class="sb-brand">
-    <div class="sb-logo">
-      <div class="sb-logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2">
-          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-        </svg>
-      </div>
-      <div>
-        <div class="sb-company">Teleflex — NOM-035</div>
-      </div>
-    </div>
-    <div class="sb-sub">Panel Médico de Salud Ocupacional<br>Chihuahua, Chihuahua</div>
-  </div>
-  <div class="sb-doctor">
-    <div class="sb-doctor-name">Dr. Jaime Iván Martínez E.</div>
-    <div class="sb-doctor-ced">Cédula 12021447</div>
-  </div>
-
-  <div class="sb-nav">
-    <div class="sb-section">Principal</div>
-    <button class="sb-btn active" onclick="showPage('dash')" data-page="dash">
-      <span class="sb-icon">📊</span> Dashboard
-    </button>
-
-    <div class="sb-section">Encuestas</div>
-    <button class="sb-btn" onclick="showPage('grii')" data-page="grii">
-      <span class="sb-icon">📋</span> Guía II — Riesgo
-      <span class="sb-badge" id="sb-b-grii">0</span>
-    </button>
-    <button class="sb-btn" onclick="showPage('griii')" data-page="griii">
-      <span class="sb-icon">🏢</span> Guía III — Entorno
-      <span class="sb-badge" id="sb-b-griii">0</span>
-    </button>
-    <button class="sb-btn" onclick="showPage('ats')" data-page="ats">
-      <span class="sb-icon">⚠️</span> Guía I — ATS
-      <span class="sb-badge red" id="sb-b-ats">0</span>
-    </button>
-
-    <div class="sb-section">Análisis</div>
-    <button class="sb-btn" onclick="showPage('compare')" data-page="compare">
-      <span class="sb-icon">🔍</span> Comparativo
-    </button>
-    <button class="sb-btn" onclick="showPage('individ')" data-page="individ">
-      <span class="sb-icon">👤</span> Por Empleado
-    </button>
-
-    <div class="sb-section">Catálogo</div>
-    <button class="sb-btn" onclick="showPage('hc')" data-page="hc">
-      <span class="sb-icon">👥</span> Head Count
-      <span class="sb-badge" id="sb-b-hc">0</span>
-    </button>
-  </div>
-
-  <div class="sb-footer">
-    <div class="sb-status">
-      <div id="conn-dot"></div>
-      <span id="conn-label">Desconectado</span>
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="brand">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="6" fill="rgba(255,255,255,.15)"/>
+      <path d="M8 22V12h4v10H8zm6-14h4v14h-4V8zm6 5h4v9h-4v-9z" fill="#fff"/>
+    </svg>
+    <div>
+      <div>Teleflex — NOM-035</div>
+      <div class="brand-sub">Dr. Jaime Iván Martínez E. | Céd. 12021447</div>
     </div>
   </div>
+  <div class="nav-scroll" id="nav-scroll">
+    <button class="nav-btn active" onclick="showPage('dashboard')" data-page="dashboard">
+      📊 Dashboard
+    </button>
+    <button class="nav-btn" onclick="showPage('gri')" data-page="gri">
+      ⚠️ Guía I <span class="nav-badge" id="badge-gri">0</span>
+    </button>
+    <button class="nav-btn" onclick="showPage('grii')" data-page="grii">
+      📋 Guía II <span class="nav-badge" id="badge-grii">0</span>
+    </button>
+    <button class="nav-btn" onclick="showPage('griii')" data-page="griii">
+      🏢 Guía III <span class="nav-badge" id="badge-griii">0</span>
+    </button>
+    <button class="nav-btn" onclick="showPage('politica')" data-page="politica">
+      📜 Política
+    </button>
+    <button class="nav-btn" onclick="showPage('medidas')" data-page="medidas">
+      🛡️ Medidas <span class="nav-badge" id="badge-medidas">0</span>
+    </button>
+    <button class="nav-btn" onclick="showPage('headcount')" data-page="headcount">
+      👥 Head Count <span class="nav-badge" id="badge-hc">0</span>
+    </button>
+    <button class="nav-btn" onclick="showPage('registros')" data-page="registros">
+      📁 Registros
+    </button>
+  </div>
+  <div id="conn-dot" title="Estado de conexión GAS"></div>
 </nav>
 
-<!-- TOPBAR -->
-<div id="topbar">
-  <div class="topbar-title" id="topbar-title">Dashboard General</div>
-  <div class="topbar-right">
-    <span class="last-sync" id="last-sync-lbl"></span>
-    <button id="sync-btn" onclick="syncFromGAS()">⟳ Sincronizar</button>
-    <button class="btn btn-outline btn-sm" onclick="openModal('modal-cfg')">⚙️ Configurar GAS</button>
-    <button class="btn btn-navy btn-sm" onclick="exportExcel()">📥 Exportar</button>
-  </div>
-</div>
+<!-- APP -->
+<div id="app">
 
-<!-- CONTENT -->
-<div id="content">
-
-<!-- ══════════════════════════════════
+<!-- ═══════════════════════════════════════════════
      DASHBOARD
-══════════════════════════════════ -->
-<div id="page-dash" class="page active">
-  <div class="page-header">
+═══════════════════════════════════════════════ -->
+<div id="page-dashboard" class="page active">
+  <div class="section-header">
     <div>
-      <div class="page-title">Dashboard General</div>
-      <div class="page-sub">Resumen de resultados NOM-035 — actualizado en tiempo real desde Google Sheets</div>
+      <div class="section-title">Dashboard General</div>
+      <div class="section-sub">Chihuahua, Chihuahua — NOM-035-STPS-2018</div>
     </div>
-    <div class="btn-row">
-      <select id="dash-year" onchange="renderDash()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:var(--font);font-size:13px">
-        <option value="2024">2024</option><option value="2025" selected>2025</option><option value="2026">2026</option>
-      </select>
+    <div class="btn-group">
+      <button class="btn btn-outline btn-sm" onclick="syncAll()">☁️ Sincronizar</button>
+      <button class="btn btn-primary btn-sm" onclick="printPage('dashboard')">🖨️ Imprimir</button>
     </div>
   </div>
 
   <div class="stats-grid" id="dash-stats">
-    <div class="stat s-blue"><div class="stat-label">Total Evaluaciones</div><div class="stat-val" id="ds-total">0</div><div class="stat-sub">Guías II + III + ATS</div></div>
-    <div class="stat s-red"><div class="stat-label">Riesgo Muy Alto</div><div class="stat-val" id="ds-vhigh">0</div><div class="stat-sub">Requieren intervención urgente</div></div>
-    <div class="stat s-amber"><div class="stat-label">Riesgo Alto</div><div class="stat-val" id="ds-high">0</div><div class="stat-sub">Requieren plan de acción</div></div>
-    <div class="stat s-green"><div class="stat-label">Riesgo Bajo/Nulo</div><div class="stat-val" id="ds-low">0</div><div class="stat-sub">Sin intervención inmediata</div></div>
-    <div class="stat s-purple"><div class="stat-label">ATS Pendientes</div><div class="stat-val" id="ds-ats">0</div><div class="stat-sub">Eventos traumáticos sin seguimiento</div></div>
-    <div class="stat s-teal"><div class="stat-label">Áreas Evaluadas</div><div class="stat-val" id="ds-areas">0</div><div class="stat-sub">Departamentos únicos</div></div>
+    <div class="stat-card info"><span class="label">Empleados</span><span class="value" id="ds-emp">0</span><span class="sub">Head Count registrado</span></div>
+    <div class="stat-card warn"><span class="label">Eventos ATS</span><span class="value" id="ds-ats">0</span><span class="sub">Guía de Referencia I</span></div>
+    <div class="stat-card"><span class="label">Cuestionarios II</span><span class="value" id="ds-q2">0</span><span class="sub">Aplicados este año</span></div>
+    <div class="stat-card"><span class="label">Cuestionarios III</span><span class="value" id="ds-q3">0</span><span class="sub">Entorno organizacional</span></div>
+    <div class="stat-card danger"><span class="label">Riesgo Alto/Muy Alto</span><span class="value" id="ds-riesgo">0</span><span class="sub">Requieren intervención</span></div>
+    <div class="stat-card success"><span class="label">Medidas Activas</span><span class="value" id="ds-medidas">0</span><span class="sub">Planes de acción vigentes</span></div>
   </div>
 
-  <div class="charts-2col">
+  <div class="charts-grid">
     <div class="card">
-      <div class="card-head"><div class="card-title">📈 Evaluaciones por Mes</div></div>
-      <div class="card-body"><div class="chart-wrap"><canvas id="ch-mes"></canvas></div></div>
+      <div class="card-header">
+        <div class="card-title">Evaluaciones por Mes</div>
+        <select id="dash-year-sel" onchange="renderDashCharts()" style="width:auto;padding:5px 10px">
+          <option value="2024">2024</option><option value="2025" selected>2025</option><option value="2026">2026</option>
+        </select>
+      </div>
+      <div class="chart-wrap"><canvas id="chartMes"></canvas></div>
     </div>
     <div class="card">
-      <div class="card-head"><div class="card-title">🎯 Distribución de Riesgo (Guía II)</div></div>
-      <div class="card-body"><div class="chart-wrap"><canvas id="ch-riesgo"></canvas></div></div>
-    </div>
-  </div>
-  <div class="charts-2col">
-    <div class="card">
-      <div class="card-head"><div class="card-title">🏗️ Riesgo por Área/Departamento</div></div>
-      <div class="card-body"><div class="chart-wrap"><canvas id="ch-area"></canvas></div></div>
+      <div class="card-header"><div class="card-title">Distribución de Riesgo Psicosocial</div></div>
+      <div class="chart-wrap"><canvas id="chartRiesgo"></canvas></div>
     </div>
     <div class="card">
-      <div class="card-head"><div class="card-title">📉 Tendencia Riesgo Alto + Muy Alto</div></div>
-      <div class="card-body"><div class="chart-wrap"><canvas id="ch-trend"></canvas></div></div>
+      <div class="card-header"><div class="card-title">Evaluaciones por Área/Departamento</div></div>
+      <div class="chart-wrap"><canvas id="chartArea"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Tendencia Riesgo — Guía II</div></div>
+      <div class="chart-wrap"><canvas id="chartTend"></canvas></div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-head"><div class="card-title">🔥 Casos Prioritarios — Riesgo Alto y Muy Alto</div></div>
-    <div class="card-body">
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Empleado</th><th>No. Emp</th><th>Área</th><th>Encuesta</th><th>Puntaje</th><th>Nivel</th><th>Fecha</th><th>Acción</th></tr></thead>
-          <tbody id="dash-prioridad-tbody"></tbody>
-        </table>
-      </div>
-    </div>
+    <div class="card-header"><div class="card-title">⚡ Alertas Activas</div></div>
+    <div id="dash-alerts"></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     GUÍA II — RESULTADOS
-══════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════
+     GUÍA I — EVENTOS TRAUMÁTICOS SEVEROS
+═══════════════════════════════════════════════ -->
+<div id="page-gri" class="page">
+  <div class="section-header">
+    <div>
+      <div class="section-title">Guía de Referencia I</div>
+      <div class="section-sub">Acontecimentos traumáticos severos — Registro y seguimiento</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="openModal('modal-gri')">+ Nuevo Registro</button>
+      <button class="btn btn-outline btn-sm" onclick="exportExcel('gri')">📥 Excel</button>
+      <button class="btn btn-outline btn-sm" onclick="printPage('gri')">🖨️ Imprimir</button>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="gri-search" placeholder="Buscar por nombre, evento…" oninput="renderGRI()"/>
+    <select id="gri-filter-tipo" onchange="renderGRI()" style="width:auto">
+      <option value="">Todos los tipos</option>
+      <option value="accidente">Accidente grave</option>
+      <option value="violencia">Violencia laboral</option>
+      <option value="muerte">Muerte de compañero</option>
+      <option value="asalto">Asalto/Robo</option>
+      <option value="desastre">Desastre natural</option>
+      <option value="otro">Otro</option>
+    </select>
+    <select id="gri-filter-seg" onchange="renderGRI()" style="width:auto">
+      <option value="">Todos los seguimientos</option>
+      <option value="pendiente">Pendiente</option>
+      <option value="en_proceso">En proceso</option>
+      <option value="cerrado">Cerrado</option>
+    </select>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Empleado</th><th>No. Emp</th><th>Fecha Evento</th>
+        <th>Tipo</th><th>Descripción</th><th>Seguimiento</th><th>Próx. Cita</th><th>Acciones</th>
+      </tr></thead>
+      <tbody id="gri-tbody"></tbody>
+    </table>
+  </div>
+  <div id="gri-empty" class="empty-state" style="display:none">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+    <p>No hay registros de eventos traumáticos severos</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     GUÍA II — CUESTIONARIO RIESGO PSICOSOCIAL
+═══════════════════════════════════════════════ -->
 <div id="page-grii" class="page">
-  <div class="page-header">
+  <div class="section-header">
     <div>
-      <div class="page-title">Guía II — Riesgo Psicosocial</div>
-      <div class="page-sub">Resultados individuales y análisis por categoría</div>
+      <div class="section-title">Guía de Referencia II</div>
+      <div class="section-sub">Cuestionario de factores de riesgo psicosocial (72 preguntas)</div>
     </div>
-    <div class="btn-row">
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="openGRIIModal()">+ Nueva Evaluación</button>
       <button class="btn btn-outline btn-sm" onclick="exportExcel('grii')">📥 Excel</button>
+      <button class="btn btn-outline btn-sm" onclick="printPage('grii')">🖨️ Imprimir</button>
     </div>
   </div>
-
-  <div class="stats-grid" style="grid-template-columns:repeat(5,1fr)">
-    <div class="stat s-purple"><div class="stat-label">Nulo</div><div class="stat-val" id="g2-null">0</div></div>
-    <div class="stat s-green"><div class="stat-label">Bajo</div><div class="stat-val" id="g2-low">0</div></div>
-    <div class="stat s-amber"><div class="stat-label">Medio</div><div class="stat-val" id="g2-med">0</div></div>
-    <div class="stat s-red"><div class="stat-label">Alto</div><div class="stat-val" id="g2-high">0</div></div>
-    <div class="stat s-red"><div class="stat-label">Muy Alto</div><div class="stat-val" id="g2-vhigh">0</div></div>
+  <div class="search-bar">
+    <input type="text" id="grii-search" placeholder="Buscar por nombre, área…" oninput="renderGRII()"/>
+    <select id="grii-filter-risk" onchange="renderGRII()" style="width:auto">
+      <option value="">Todos los niveles</option>
+      <option value="nulo">Nulo</option>
+      <option value="bajo">Bajo</option>
+      <option value="medio">Medio</option>
+      <option value="alto">Alto</option>
+      <option value="muy_alto">Muy Alto</option>
+    </select>
+    <select id="grii-filter-area" onchange="renderGRII()" style="width:auto" id="grii-filter-area">
+      <option value="">Todas las áreas</option>
+    </select>
   </div>
-
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">Puntaje Promedio por Categoría</div>
-    </div>
-    <div class="card-body">
-      <div class="risk-breakdown" id="g2-cat-bars"></div>
-    </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Empleado</th><th>Área</th><th>Fecha</th>
+        <th>Puntaje</th><th>Nivel Riesgo</th><th>Cat. Amb. Trabajo</th>
+        <th>Cat. Factores Prop.</th><th>Cat. Org. Tiempo</th><th>Acciones</th>
+      </tr></thead>
+      <tbody id="grii-tbody"></tbody>
+    </table>
   </div>
-
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">Resultados Individuales</div>
-      <div class="btn-row">
-        <input type="text" id="g2-search" placeholder="Buscar…" oninput="renderGRII()" style="padding:7px 11px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--font);font-size:13px"/>
-        <select id="g2-risk-f" onchange="renderGRII()" style="padding:7px 11px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--font);font-size:13px">
-          <option value="">Todos</option><option value="nulo">Nulo</option><option value="bajo">Bajo</option>
-          <option value="medio">Medio</option><option value="alto">Alto</option><option value="muy_alto">Muy Alto</option>
-        </select>
-      </div>
-    </div>
-    <div class="card-body" style="padding:0">
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th>#</th><th>Empleado</th><th>No. Emp</th><th>Área</th><th>Turno</th>
-            <th>Fecha</th><th>Puntaje</th><th>Nivel</th>
-            <th>Ambiente</th><th>Act. Prop.</th><th>Org. Tiempo</th><th>Liderazgo</th>
-            <th>Entorno</th><th>Interferencia</th><th>Lid. Neg.</th><th>Ver</th>
-          </tr></thead>
-          <tbody id="grii-tbody"></tbody>
-        </table>
-      </div>
-    </div>
+  <div id="grii-empty" class="empty-state" style="display:none">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+    <p>No hay cuestionarios aplicados</p>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     GUÍA III — RESULTADOS
-══════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════
+     GUÍA III — ENTORNO ORGANIZACIONAL
+═══════════════════════════════════════════════ -->
 <div id="page-griii" class="page">
-  <div class="page-header">
+  <div class="section-header">
     <div>
-      <div class="page-title">Guía III — Entorno Organizacional</div>
-      <div class="page-sub">Resultados por área y análisis de entorno</div>
+      <div class="section-title">Guía de Referencia III</div>
+      <div class="section-sub">Cuestionario de entorno organizacional (23 preguntas)</div>
     </div>
-    <div class="btn-row">
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="openGRIIIModal()">+ Nueva Evaluación</button>
       <button class="btn btn-outline btn-sm" onclick="exportExcel('griii')">📥 Excel</button>
+      <button class="btn btn-outline btn-sm" onclick="printPage('griii')">🖨️ Imprimir</button>
     </div>
   </div>
-
-  <div class="stats-grid" style="grid-template-columns:repeat(5,1fr)">
-    <div class="stat s-purple"><div class="stat-label">Nulo</div><div class="stat-val" id="g3-null">0</div></div>
-    <div class="stat s-green"><div class="stat-label">Bajo</div><div class="stat-val" id="g3-low">0</div></div>
-    <div class="stat s-amber"><div class="stat-label">Medio</div><div class="stat-val" id="g3-med">0</div></div>
-    <div class="stat s-red"><div class="stat-label">Alto</div><div class="stat-val" id="g3-high">0</div></div>
-    <div class="stat s-red"><div class="stat-label">Muy Alto</div><div class="stat-val" id="g3-vhigh">0</div></div>
+  <div class="search-bar">
+    <input type="text" id="griii-search" placeholder="Buscar…" oninput="renderGRIII()"/>
+    <select id="griii-filter-risk" onchange="renderGRIII()" style="width:auto">
+      <option value="">Todos los niveles</option>
+      <option value="nulo">Nulo</option><option value="bajo">Bajo</option>
+      <option value="medio">Medio</option><option value="alto">Alto</option><option value="muy_alto">Muy Alto</option>
+    </select>
   </div>
-
-  <div class="card">
-    <div class="card-head"><div class="card-title">Promedio por Dimensión Organizacional</div></div>
-    <div class="card-body"><div class="risk-breakdown" id="g3-cat-bars"></div></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Área/Grupo</th><th>Aplicado por</th><th>Fecha</th>
+        <th>Puntaje</th><th>Nivel Riesgo</th><th>Liderazgo</th><th>Relaciones</th><th>Participación</th><th>Acciones</th>
+      </tr></thead>
+      <tbody id="griii-tbody"></tbody>
+    </table>
   </div>
-
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">Resultados por Área</div>
-      <input type="text" id="g3-search" placeholder="Buscar…" oninput="renderGRIII()" style="padding:7px 11px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--font);font-size:13px"/>
-    </div>
-    <div class="card-body" style="padding:0">
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th>#</th><th>Área</th><th>Aplicador</th><th>Participantes</th><th>Fecha</th>
-            <th>Puntaje</th><th>Nivel</th><th>Liderazgo</th><th>Relaciones</th>
-            <th>Participación</th><th>Distribución</th><th>Capacitación</th><th>Ver</th>
-          </tr></thead>
-          <tbody id="griii-tbody"></tbody>
-        </table>
-      </div>
-    </div>
+  <div id="griii-empty" class="empty-state" style="display:none">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    <p>No hay evaluaciones de entorno organizacional</p>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     ATS — EVENTOS TRAUMÁTICOS
-══════════════════════════════════ -->
-<div id="page-ats" class="page">
-  <div class="page-header">
+<!-- ═══════════════════════════════════════════════
+     POLÍTICA DE PREVENCIÓN
+═══════════════════════════════════════════════ -->
+<div id="page-politica" class="page">
+  <div class="section-header">
     <div>
-      <div class="page-title">Guía I — Acontecimentos Traumáticos Severos</div>
-      <div class="page-sub">Reportes de empleados expuestos a eventos traumáticos</div>
+      <div class="section-title">Política de Prevención</div>
+      <div class="section-sub">Registro de política empresarial NOM-035-STPS-2018</div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-outline btn-sm" onclick="exportExcel('ats')">📥 Excel</button>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">Reportes Recibidos</div>
-      <div class="btn-row">
-        <input type="text" id="ats-search" placeholder="Buscar…" oninput="renderATS()" style="padding:7px 11px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--font);font-size:13px"/>
-        <select id="ats-f-tipo" onchange="renderATS()" style="padding:7px 11px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--font);font-size:13px">
-          <option value="">Todos los tipos</option>
-          <option value="accidente">Accidente</option><option value="violencia">Violencia</option>
-          <option value="muerte">Muerte</option><option value="asalto">Asalto</option>
-          <option value="desastre">Desastre</option><option value="acoso">Acoso</option><option value="otro">Otro</option>
-        </select>
-      </div>
-    </div>
-    <div class="card-body" style="padding:0">
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th>#</th><th>Empleado</th><th>No. Emp</th><th>Área</th><th>Fecha Reporte</th>
-            <th>Fecha Evento</th><th>Tipo</th><th>Rol</th><th>Atención</th><th>Ver</th>
-          </tr></thead>
-          <tbody id="ats-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════
-     COMPARATIVO POR ÁREA
-══════════════════════════════════ -->
-<div id="page-compare" class="page">
-  <div class="page-header">
-    <div>
-      <div class="page-title">Análisis Comparativo por Área</div>
-      <div class="page-sub">Comparación de niveles de riesgo entre departamentos</div>
-    </div>
-  </div>
-  <div class="charts-2col">
-    <div class="card">
-      <div class="card-head"><div class="card-title">Riesgo Promedio por Área (Guía II)</div></div>
-      <div class="card-body"><div class="chart-wrap"><canvas id="ch-comp-g2"></canvas></div></div>
-    </div>
-    <div class="card">
-      <div class="card-head"><div class="card-title">Riesgo Promedio por Área (Guía III)</div></div>
-      <div class="card-body"><div class="chart-wrap"><canvas id="ch-comp-g3"></canvas></div></div>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="savePolitica()">💾 Guardar</button>
+      <button class="btn btn-outline btn-sm" onclick="printPage('politica')">🖨️ Imprimir</button>
     </div>
   </div>
   <div class="card">
-    <div class="card-head"><div class="card-title">Tabla Comparativa de Áreas</div></div>
-    <div class="card-body" style="padding:0">
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Área</th><th>Evaluaciones G-II</th><th>Prom. G-II</th><th>Nivel G-II</th>
-            <th>Evaluaciones G-III</th><th>Prom. G-III</th><th>Nivel G-III</th><th>ATS</th></tr></thead>
-          <tbody id="comp-tbody"></tbody>
-        </table>
-      </div>
+    <div class="card-header"><div class="card-title">📜 Texto de la Política</div></div>
+    <div class="form-row">
+      <div class="form-group"><label>Versión</label><input id="pol-version" placeholder="Ej: 1.0"/></div>
+      <div class="form-group"><label>Fecha de Emisión</label><input type="date" id="pol-fecha"/></div>
+      <div class="form-group"><label>Responsable / Firmante</label><input id="pol-firmante" value="Dr. Jaime Iván Martínez Espinoza"/></div>
+      <div class="form-group"><label>Cédula</label><input id="pol-cedula" value="12021447"/></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Texto de la Política</label>
+      <textarea id="pol-texto" style="min-height:180px" placeholder="Redacte aquí el texto completo de la política de prevención de riesgos psicosociales…"></textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">✅ Compromisos de la Política</div>
+      <button class="btn btn-outline btn-sm" onclick="addCommitment()">+ Agregar</button>
+    </div>
+    <div id="commitments-list"></div>
+  </div>
+  <div class="card" id="pol-hist-card">
+    <div class="card-header"><div class="card-title">📅 Historial de Versiones</div></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Versión</th><th>Fecha</th><th>Firmante</th><th>Resumen</th></tr></thead>
+        <tbody id="pol-hist-tbody"></tbody>
+      </table>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     BÚSQUEDA POR EMPLEADO
-══════════════════════════════════ -->
-<div id="page-individ" class="page">
-  <div class="page-header">
+<!-- ═══════════════════════════════════════════════
+     MEDIDAS DE CONTROL
+═══════════════════════════════════════════════ -->
+<div id="page-medidas" class="page">
+  <div class="section-header">
     <div>
-      <div class="page-title">Historial por Empleado</div>
-      <div class="page-sub">Busca todas las evaluaciones de un empleado específico</div>
+      <div class="section-title">Medidas de Control</div>
+      <div class="section-sub">Plan de acción por nivel de riesgo detectado</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="openModal('modal-medida')">+ Nueva Medida</button>
+      <button class="btn btn-outline btn-sm" onclick="exportExcel('medidas')">📥 Excel</button>
+      <button class="btn btn-outline btn-sm" onclick="printPage('medidas')">🖨️ Imprimir</button>
     </div>
   </div>
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-body" style="padding:16px 20px">
-      <div style="display:flex;gap:10px;align-items:center">
-        <input type="text" id="individ-search" placeholder="No. empleado o nombre…"
-          style="flex:1;padding:10px 14px;border:2px solid var(--border);border-radius:var(--r-sm);font-family:var(--font);font-size:14px"
-          oninput="searchIndivid()"/>
-        <button class="btn btn-navy" onclick="searchIndivid()">Buscar</button>
-      </div>
-    </div>
+  <div class="search-bar">
+    <input type="text" id="med-search" placeholder="Buscar medida, responsable…" oninput="renderMedidas()"/>
+    <select id="med-filter-status" onchange="renderMedidas()" style="width:auto">
+      <option value="">Todos los estatus</option>
+      <option value="pendiente">Pendiente</option>
+      <option value="en_proceso">En proceso</option>
+      <option value="completado">Completado</option>
+      <option value="cancelado">Cancelado</option>
+    </select>
+    <select id="med-filter-risk" onchange="renderMedidas()" style="width:auto">
+      <option value="">Todos los niveles</option>
+      <option value="bajo">Bajo</option><option value="medio">Medio</option>
+      <option value="alto">Alto</option><option value="muy_alto">Muy Alto</option>
+    </select>
   </div>
-  <div id="individ-results"></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Medida/Acción</th><th>Nivel Riesgo</th><th>Responsable</th>
+        <th>Área</th><th>Fecha Inicio</th><th>Fecha Límite</th><th>Avance</th><th>Estatus</th><th>Acciones</th>
+      </tr></thead>
+      <tbody id="med-tbody"></tbody>
+    </table>
+  </div>
 </div>
 
-
-<!-- ══════════════════════════════════
+<!-- ═══════════════════════════════════════════════
      HEAD COUNT
-══════════════════════════════════ -->
-<div id="page-hc" class="page">
-  <div class="page-header">
+═══════════════════════════════════════════════ -->
+<div id="page-headcount" class="page">
+  <div class="section-header">
     <div>
-      <div class="page-title">Head Count</div>
-      <div class="page-sub">Catálogo de empleados — fuente para autocomplete en app de trabajadores</div>
+      <div class="section-title">Head Count</div>
+      <div class="section-sub">Catálogo de empleados — Teleflex Chihuahua</div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-outline btn-sm" onclick="document.getElementById('hc-file-input').click()">📤 Importar Excel</button>
-      <button class="btn btn-navy btn-sm" onclick="pushHCtoGAS()">☁️ Publicar en GAS</button>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="openModal('modal-emp')">+ Empleado</button>
+      <button class="btn btn-outline btn-sm" onclick="triggerExcelImport()">📤 Importar Excel</button>
       <button class="btn btn-outline btn-sm" onclick="exportExcel('hc')">📥 Exportar</button>
     </div>
   </div>
-  <input type="file" id="hc-file-input" accept=".xlsx,.xls" style="display:none" onchange="importHC(event)"/>
-
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-body" style="padding:16px 20px">
-      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-        <div style="font-size:13px;color:var(--text2)">
-          <b id="hc-count">0</b> empleados registrados
-          <span style="color:var(--text4);margin-left:8px" id="hc-sync-status"></span>
-        </div>
-        <div style="flex:1;min-width:200px">
-          <input type="text" id="hc-search" placeholder="Buscar empleado…" oninput="renderHC()"
-            style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:var(--font);font-size:13px"/>
-        </div>
-        <div style="font-size:12px;color:var(--text4)">
-          Columnas requeridas en Excel: <b>No. Empleado, Nombre, Puesto, Departamento, Turno, Planta, Género, Fecha Ingreso</b>
-        </div>
-      </div>
-    </div>
+  <input type="file" id="excel-import" accept=".xlsx,.xls" style="display:none" onchange="importExcel(event)"/>
+  <div class="hc-filters">
+    <input type="text" id="hc-search" placeholder="Buscar empleado…" oninput="renderHC()" style="max-width:280px"/>
+    <select id="hc-dept" onchange="renderHC()" style="width:auto"><option value="">Todos los departamentos</option></select>
+    <select id="hc-turno" onchange="renderHC()" style="width:auto">
+      <option value="">Todos los turnos</option>
+      <option value="Matutino">Matutino</option>
+      <option value="Vespertino">Vespertino</option>
+      <option value="Nocturno">Nocturno</option>
+    </select>
+    <select id="hc-genero" onchange="renderHC()" style="width:auto">
+      <option value="">Todos</option>
+      <option value="M">Masculino</option>
+      <option value="F">Femenino</option>
+    </select>
   </div>
-
-  <div class="card">
-    <div class="card-body" style="padding:0">
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th>No. Empleado</th><th>Nombre</th><th>Puesto</th>
-            <th>Departamento</th><th>Turno</th><th>Planta</th><th>Género</th><th>Ingreso</th><th>Acción</th>
-          </tr></thead>
-          <tbody id="hc-tbody"></tbody>
-        </table>
-      </div>
-    </div>
+  <div id="hc-upload-zone" class="upload-zone" style="margin-bottom:16px;display:none"
+    ondragover="event.preventDefault();this.classList.add('dragover')"
+    ondragleave="this.classList.remove('dragover')"
+    ondrop="handleDrop(event)">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <p>Arrastra tu archivo .xlsx aquí o <u>haz clic</u></p>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>No. Emp</th><th>Nombre</th><th>Puesto</th><th>Departamento</th>
+        <th>Turno</th><th>Planta</th><th>Género</th><th>Ingreso</th><th>Acciones</th>
+      </tr></thead>
+      <tbody id="hc-tbody"></tbody>
+    </table>
+  </div>
+  <div id="hc-empty" class="empty-state" style="display:none">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    <p>Sin empleados registrados. Importe desde Excel o agregue manualmente.</p>
   </div>
 </div>
 
-</div><!-- /content -->
+<!-- ═══════════════════════════════════════════════
+     REGISTROS
+═══════════════════════════════════════════════ -->
+<div id="page-registros" class="page">
+  <div class="section-header">
+    <div>
+      <div class="section-title">Registros</div>
+      <div class="section-sub">Historial completo de evaluaciones NOM-035</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline btn-sm" onclick="exportExcel('registros')">📥 Excel</button>
+      <button class="btn btn-outline btn-sm" onclick="printPage('registros')">🖨️ Imprimir</button>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="reg-search" placeholder="Buscar en todos los registros…" oninput="renderRegistros()"/>
+    <select id="reg-tipo" onchange="renderRegistros()" style="width:auto">
+      <option value="">Todos los módulos</option>
+      <option value="gri">Guía I — ATS</option>
+      <option value="grii">Guía II — Riesgo Psicosocial</option>
+      <option value="griii">Guía III — Entorno</option>
+      <option value="medidas">Medidas de Control</option>
+    </select>
+    <select id="reg-year" onchange="renderRegistros()" style="width:auto">
+      <option value="">Todos los años</option>
+      <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+    </select>
+    <select id="reg-month" onchange="renderRegistros()" style="width:auto">
+      <option value="">Todos los meses</option>
+    </select>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Fecha</th><th>Módulo</th><th>Empleado/Área</th><th>Tipo</th><th>Resultado/Nivel</th><th>Ver</th></tr></thead>
+      <tbody id="reg-tbody"></tbody>
+    </table>
+  </div>
+</div>
 
-<!-- ══════════════════════════════════
-     MODAL: CONFIG GAS
-══════════════════════════════════ -->
-<div class="modal-ov" id="modal-cfg" onclick="closeModalOuter(event,'modal-cfg')">
+</div><!-- /app -->
+
+<!-- ═══════════════════════════════════════════════
+     MODALES
+═══════════════════════════════════════════════ -->
+
+<!-- Modal GRI -->
+<div class="modal-overlay" id="modal-gri" onclick="closeModalOuter(event,'modal-gri')">
   <div class="modal">
-    <div class="modal-head">
-      <span class="modal-title">⚙️ Configuración de Google Apps Script</span>
-      <button class="modal-x" onclick="closeModal('modal-cfg')">✕</button>
+    <div class="modal-header">
+      <span class="modal-title">⚠️ Registro — Acontecimiento Traumático Severo</span>
+      <button class="modal-close" onclick="closeModal('modal-gri')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="cfg-field">
-        <label>URL del Google Apps Script *</label>
-        <input type="url" id="cfg-gas-url" placeholder="https://script.google.com/macros/s/…/exec"/>
-        <div class="cfg-hint">Obtén esta URL al publicar tu Apps Script como Web App</div>
+      <div class="form-row">
+        <div class="form-group"><label>No. Empleado</label><input id="gri-noemp" placeholder="Ingrese No. Emp."/></div>
+        <div class="form-group"><label>Nombre Completo</label><input id="gri-nombre" placeholder="Nombre del trabajador"/></div>
       </div>
-      <div class="cfg-field">
-        <label>Intervalo de sincronización automática</label>
-        <select id="cfg-interval" style="width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:var(--font);font-size:13px">
-          <option value="0">Manual (sin auto-sync)</option>
-          <option value="30">Cada 30 segundos</option>
-          <option value="60">Cada minuto</option>
-          <option value="300">Cada 5 minutos</option>
-        </select>
+      <div class="form-row">
+        <div class="form-group"><label>Puesto</label><input id="gri-puesto"/></div>
+        <div class="form-group"><label>Departamento/Área</label><input id="gri-area"/></div>
       </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
-        <button class="btn btn-outline" onclick="closeModal('modal-cfg')">Cancelar</button>
-        <button class="btn btn-teal" onclick="saveConfig()">💾 Guardar y Probar</button>
+      <div class="form-row">
+        <div class="form-group"><label>Fecha del Evento</label><input type="date" id="gri-fecha"/></div>
+        <div class="form-group">
+          <label>Tipo de Evento</label>
+          <select id="gri-tipo">
+            <option value="accidente">Accidente grave</option>
+            <option value="violencia">Violencia laboral</option>
+            <option value="muerte">Muerte de compañero</option>
+            <option value="asalto">Asalto / Robo</option>
+            <option value="desastre">Desastre natural</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
       </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Descripción del Evento</label>
+        <textarea id="gri-desc" placeholder="Describa brevemente el acontecimiento…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Seguimiento</label>
+          <select id="gri-seguimiento">
+            <option value="pendiente">Pendiente</option>
+            <option value="en_proceso">En proceso</option>
+            <option value="cerrado">Cerrado</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Próxima Cita</label><input type="date" id="gri-prox"/></div>
+      </div>
+      <div class="form-group">
+        <label>Notas de Seguimiento</label>
+        <textarea id="gri-notas" placeholder="Observaciones clínicas, acciones tomadas…"></textarea>
+      </div>
+      <input type="hidden" id="gri-edit-idx" value="-1"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-gri')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveGRI()">💾 Guardar Registro</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: DETALLE GRII -->
-<div class="modal-ov" id="modal-g2-detail" onclick="closeModalOuter(event,'modal-g2-detail')">
-  <div class="modal wide">
-    <div class="modal-head">
-      <span class="modal-title" id="g2d-title">Detalle Guía II</span>
-      <button class="modal-x" onclick="closeModal('modal-g2-detail')">✕</button>
+<!-- Modal GRII — Cuestionario -->
+<div class="modal-overlay" id="modal-grii" onclick="closeModalOuter(event,'modal-grii')">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <span class="modal-title">📋 Cuestionario — Factores de Riesgo Psicosocial (Guía II)</span>
+      <button class="modal-close" onclick="closeModal('modal-grii')">✕</button>
     </div>
-    <div class="modal-body" id="g2d-body"></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>No. Empleado</label><input id="q2-noemp"/></div>
+        <div class="form-group"><label>Nombre</label><input id="q2-nombre"/></div>
+        <div class="form-group"><label>Puesto</label><input id="q2-puesto"/></div>
+        <div class="form-group"><label>Área</label><input id="q2-area"/></div>
+        <div class="form-group"><label>Fecha</label><input type="date" id="q2-fecha"/></div>
+      </div>
+      <div id="q2-form"></div>
+      <input type="hidden" id="q2-edit-idx" value="-1"/>
+    </div>
+    <div class="modal-footer">
+      <div id="q2-result" style="flex:1;font-weight:700;color:var(--navy)"></div>
+      <button class="btn btn-outline" onclick="closeModal('modal-grii')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveGRII()">💾 Guardar</button>
+    </div>
   </div>
 </div>
 
-<!-- MODAL: DETALLE ATS -->
-<div class="modal-ov" id="modal-ats-detail" onclick="closeModalOuter(event,'modal-ats-detail')">
+<!-- Modal GRIII — Entorno Organizacional -->
+<div class="modal-overlay" id="modal-griii" onclick="closeModalOuter(event,'modal-griii')">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">🏢 Cuestionario — Entorno Organizacional (Guía III)</span>
+      <button class="modal-close" onclick="closeModal('modal-griii')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Área / Grupo Evaluado</label><input id="q3-area"/></div>
+        <div class="form-group"><label>Aplicado por</label><input id="q3-aplicador" value="Dr. Jaime Iván Martínez E."/></div>
+        <div class="form-group"><label>Fecha</label><input type="date" id="q3-fecha"/></div>
+        <div class="form-group"><label>No. Participantes</label><input type="number" id="q3-participantes" min="1"/></div>
+      </div>
+      <div id="q3-form"></div>
+      <input type="hidden" id="q3-edit-idx" value="-1"/>
+    </div>
+    <div class="modal-footer">
+      <div id="q3-result" style="flex:1;font-weight:700;color:var(--navy)"></div>
+      <button class="btn btn-outline" onclick="closeModal('modal-griii')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveGRIII()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Medida -->
+<div class="modal-overlay" id="modal-medida" onclick="closeModalOuter(event,'modal-medida')">
   <div class="modal">
-    <div class="modal-head">
-      <span class="modal-title" id="atsd-title">Detalle ATS</span>
-      <button class="modal-x" onclick="closeModal('modal-ats-detail')">✕</button>
+    <div class="modal-header">
+      <span class="modal-title">🛡️ Medida de Control</span>
+      <button class="modal-close" onclick="closeModal('modal-medida')">✕</button>
     </div>
-    <div class="modal-body" id="atsd-body"></div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Descripción de la Medida / Acción</label>
+        <textarea id="med-desc" placeholder="Describa la acción de control o mejora…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nivel de Riesgo que Atiende</label>
+          <select id="med-risk">
+            <option value="bajo">Bajo</option><option value="medio">Medio</option>
+            <option value="alto">Alto</option><option value="muy_alto">Muy Alto</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Responsable</label><input id="med-resp" placeholder="Nombre del responsable"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Área</label><input id="med-area"/></div>
+        <div class="form-group">
+          <label>Estatus</label>
+          <select id="med-status">
+            <option value="pendiente">Pendiente</option>
+            <option value="en_proceso">En proceso</option>
+            <option value="completado">Completado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Fecha de Inicio</label><input type="date" id="med-inicio"/></div>
+        <div class="form-group"><label>Fecha Límite</label><input type="date" id="med-limite"/></div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Avance (%) <span id="med-avance-val">0%</span></label>
+        <input type="range" id="med-avance" min="0" max="100" value="0"
+          oninput="document.getElementById('med-avance-val').textContent=this.value+'%'" style="padding:0"/>
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <textarea id="med-obs"></textarea>
+      </div>
+      <input type="hidden" id="med-edit-idx" value="-1"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-medida')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMedida()">💾 Guardar</button>
+    </div>
   </div>
 </div>
 
-<!-- TOAST -->
-<div id="toast-ctr"></div>
+<!-- Modal Empleado -->
+<div class="modal-overlay" id="modal-emp" onclick="closeModalOuter(event,'modal-emp')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">👤 Empleado</span>
+      <button class="modal-close" onclick="closeModal('modal-emp')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>No. Empleado *</label><input id="emp-no" placeholder="Ej: TLX-001"/></div>
+        <div class="form-group"><label>Nombre Completo *</label><input id="emp-nombre"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Puesto</label><input id="emp-puesto"/></div>
+        <div class="form-group"><label>Departamento</label><input id="emp-dept"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Turno</label>
+          <select id="emp-turno">
+            <option value="Matutino">Matutino</option>
+            <option value="Vespertino">Vespertino</option>
+            <option value="Nocturno">Nocturno</option>
+            <option value="Administrativo">Administrativo</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Planta</label><input id="emp-planta" placeholder="Ej: Planta 1"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Género</label>
+          <select id="emp-genero">
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+            <option value="NB">No binario</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Fecha de Ingreso</label><input type="date" id="emp-ingreso"/></div>
+      </div>
+      <input type="hidden" id="emp-edit-idx" value="-1"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-emp')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEmp()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Compromiso Política -->
+<div class="modal-overlay" id="modal-commit" onclick="closeModalOuter(event,'modal-commit')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">✅ Compromiso de Política</span>
+      <button class="modal-close" onclick="closeModal('modal-commit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Descripción del Compromiso</label>
+        <textarea id="commit-text" placeholder="Describa el compromiso adquirido en la política…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Responsable</label>
+        <input id="commit-resp"/>
+      </div>
+      <input type="hidden" id="commit-edit-idx" value="-1"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-commit')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCommitment()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Impresión -->
+<div class="modal-overlay" id="print-modal" onclick="closeModalOuter(event,'print-modal')">
+  <div class="modal modal-xl" style="max-height:95vh">
+    <div class="modal-header">
+      <span class="modal-title">🖨️ Vista de Impresión / PDF</span>
+      <button class="modal-close" onclick="closeModal('print-modal')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:12px">
+      <iframe id="print-iframe" src="about:blank" style="width:100%;height:68vh;border:none;border-radius:6px;background:#f5f5f5"></iframe>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('print-modal')">Cerrar</button>
+      <button class="btn btn-primary" onclick="triggerPrint()">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
 
 <script>
 'use strict';
 
-// ════════════════════════════════════════
-//  CONFIG
-// ════════════════════════════════════════
-let GAS_URL = localStorage.getItem('nom035_gas_url') || 'TU_URL_AQUI';
-let syncInterval = parseInt(localStorage.getItem('nom035_sync_interval') || '0');
-let syncTimer = null;
-const NET_TIMEOUT = 10000;
+// ═══════════════════════════════════════════════
+//  CONSTANTES Y CONFIGURACIÓN
+// ═══════════════════════════════════════════════
+const GAS = 'TU_URL_AQUI'; // Reemplaza con tu URL de Google Apps Script
+const APP_VERSION = '1.0.0';
+const EMPRESA = 'Teleflex';
+const MEDICO = 'Dr. Jaime Iván Martínez Espinoza';
+const CEDULA = '12021447';
+const UBICACION = 'Chihuahua, Chihuahua';
+const NET_TIMEOUT = 8000;
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════
 //  ESTADO GLOBAL
-// ════════════════════════════════════════
-let headcountData = [];
+// ═══════════════════════════════════════════════
+let griData = [];
 let griiData = [];
 let griiiData = [];
-let atsData = [];
-let lastSync = null;
+let medidasData = [];
+let headcountData = [];
+let politicaData = {version:'',fecha:'',firmante:MEDICO,cedula:CEDULA,texto:'',compromisos:[],historial:[]};
 
-let chMes=null, chRiesgo=null, chArea=null, chTrend=null, chCompG2=null, chCompG3=null;
+let chMes = null, chRiesgo = null, chArea = null, chTend = null;
+let currentPrintPage = '';
 
-// ════════════════════════════════════════
-//  PERSISTENCIA LOCAL (cache)
-// ════════════════════════════════════════
-function saveCache() {
+// ═══════════════════════════════════════════════
+//  PERSISTENCIA LOCAL
+// ═══════════════════════════════════════════════
+function save() {
   try {
-    localStorage.setItem('nom035_cache_hc', JSON.stringify(headcountData));
-        localStorage.setItem('nom035_cache_grii', JSON.stringify(griiData));
-    localStorage.setItem('nom035_cache_griii', JSON.stringify(griiiData));
-    localStorage.setItem('nom035_cache_ats', JSON.stringify(atsData));
-    if (lastSync) localStorage.setItem('nom035_last_sync', lastSync);
-  } catch(e) { console.warn('Cache save error', e); }
+    localStorage.setItem('nom035_gri', JSON.stringify(griData));
+    localStorage.setItem('nom035_grii', JSON.stringify(griiData));
+    localStorage.setItem('nom035_griii', JSON.stringify(griiiData));
+    localStorage.setItem('nom035_medidas', JSON.stringify(medidasData));
+    localStorage.setItem('nom035_hc', JSON.stringify(headcountData));
+    localStorage.setItem('nom035_politica', JSON.stringify(politicaData));
+  } catch(e) { console.error('Error guardando localStorage', e); }
 }
 
-function loadCache() {
+function load() {
   try {
-    headcountData = JSON.parse(localStorage.getItem('nom035_cache_hc') || '[]');
-        griiData = JSON.parse(localStorage.getItem('nom035_cache_grii') || '[]');
-    griiiData = JSON.parse(localStorage.getItem('nom035_cache_griii') || '[]');
-    atsData = JSON.parse(localStorage.getItem('nom035_cache_ats') || '[]');
-    lastSync = localStorage.getItem('nom035_last_sync') || null;
-  } catch(e) { console.warn('Cache load error', e); }
+    griData = JSON.parse(localStorage.getItem('nom035_gri') || '[]');
+    griiData = JSON.parse(localStorage.getItem('nom035_grii') || '[]');
+    griiiData = JSON.parse(localStorage.getItem('nom035_griii') || '[]');
+    medidasData = JSON.parse(localStorage.getItem('nom035_medidas') || '[]');
+    headcountData = JSON.parse(localStorage.getItem('nom035_hc') || '[]');
+    const pol = localStorage.getItem('nom035_politica');
+    if (pol) politicaData = JSON.parse(pol);
+  } catch(e) { console.error('Error cargando localStorage', e); }
 }
 
-// ════════════════════════════════════════
-//  RED
-// ════════════════════════════════════════
-async function gasGet(params) {
-  if (!GAS_URL || GAS_URL === 'TU_URL_AQUI') throw new Error('GAS URL no configurada');
+// ═══════════════════════════════════════════════
+//  RED — GAS
+// ═══════════════════════════════════════════════
+async function gGet(params) {
   const ctrl = new AbortController();
   const tid = setTimeout(() => ctrl.abort(), NET_TIMEOUT);
   try {
-    const url = new URL(GAS_URL);
-    Object.entries(params || {}).forEach(([k,v]) => url.searchParams.append(k, v));
-    const r = await fetch(url.toString(), { signal: ctrl.signal });
+    const url = new URL(GAS);
+    Object.entries(params).forEach(([k,v]) => url.searchParams.append(k, v));
+    const r = await fetch(url.toString(), { signal: ctrl.signal, mode: 'cors' });
     clearTimeout(tid);
-    const json = await r.json();
-    return json;
-  } catch(e) { clearTimeout(tid); throw e; }
-}
-
-async function syncFromGAS() {
-  if (!GAS_URL || GAS_URL === 'TU_URL_AQUI') {
-    toast('Configure la URL del GAS primero', 'warn');
-    openModal('modal-cfg');
-    return;
-  }
-  const btn = document.getElementById('sync-btn');
-  if (btn) { btn.classList.add('syncing'); btn.textContent = '⟳ Sincronizando…'; }
-  const dot = document.getElementById('conn-dot');
-  try {
-    const data = await gasGet({ action: 'getAll' });
-    if (data && data.headcount) headcountData = data.headcount;
-        if (data && data.grii) griiData = data.grii;
-    if (data && data.griii) griiiData = data.griii;
-    if (data && data.ats) atsData = data.ats;
-    lastSync = new Date().toLocaleTimeString('es-MX');
-    saveCache();
-    if (dot) dot.classList.add('online');
-    const cl = document.getElementById('conn-label'); if (cl) cl.textContent = 'Conectado';
-    const ls = document.getElementById('last-sync-lbl'); if (ls) ls.textContent = 'Sync: ' + lastSync;
-    refreshAll();
-    toast('Datos actualizados ✓', 'ok');
+    return await r.json();
   } catch(e) {
-    if (dot) dot.classList.remove('online');
-    const cl = document.getElementById('conn-label'); if (cl) cl.textContent = 'Sin conexión';
-    toast('Error al sincronizar: ' + e.message, 'err');
-  } finally {
-    if (btn) { btn.classList.remove('syncing'); btn.textContent = '⟳ Sincronizar'; }
+    clearTimeout(tid);
+    throw e;
+  }
+}
+const gasGet = gGet;
+
+async function gPost(data) {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), NET_TIMEOUT);
+  try {
+    const r = await fetch(GAS, {
+      method: 'POST',
+      signal: ctrl.signal,
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    clearTimeout(tid);
+    return await r.json();
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+const gasPost = gPost;
+
+async function checkConnection() {
+  const dot = document.getElementById('conn-dot');
+  if (!dot) return;
+  if (GAS === 'TU_URL_AQUI') { dot.classList.remove('online'); return; }
+  try {
+    await gGet({ action: 'ping' });
+    dot.classList.add('online');
+  } catch(e) {
+    dot.classList.remove('online');
   }
 }
 
-function setupAutoSync() {
-  if (syncTimer) clearInterval(syncTimer);
-  if (syncInterval > 0) syncTimer = setInterval(syncFromGAS, syncInterval * 1000);
+async function syncAll() {
+  if (GAS === 'TU_URL_AQUI') { toast('Configure la URL del GAS primero', 'warn'); return; }
+  toast('Sincronizando…', 'info');
+  try {
+    await gPost({ action: 'sync', gri: griData, grii: griiData, griii: griiiData,
+      medidas: medidasData, hc: headcountData, politica: politicaData });
+    toast('Sincronización completada ✓', 'success');
+  } catch(e) {
+    toast('Error de sincronización: ' + e.message, 'error');
+  }
 }
 
-// ════════════════════════════════════════
-//  NAVEGACIÓN
-// ════════════════════════════════════════
-const PAGE_TITLES = {
-  dash:'Dashboard General', grii:'Guía II — Riesgo Psicosocial',
-  griii:'Guía III — Entorno Organizacional', ats:'Guía I — ATS',
-  compare:'Análisis Comparativo por Área', individ:'Historial por Empleado'
-};
+// ═══════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  if (!c) return;
+  const icons = { success:'✅', error:'❌', warn:'⚠️', info:'ℹ️' };
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type === 'info' ? '' : type);
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 3500);
+}
 
+// ═══════════════════════════════════════════════
+//  NAVEGACIÓN
+// ═══════════════════════════════════════════════
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active'));
-  const pg = document.getElementById('page-' + name); if (pg) pg.classList.add('active');
-  document.querySelectorAll(`[data-page="${name}"]`).forEach(b => b.classList.add('active'));
-  const tt = document.getElementById('topbar-title'); if (tt) tt.textContent = PAGE_TITLES[name] || name;
-  if (name === 'dash') renderDash();
-  if (name === 'grii') renderGRII();
-  if (name === 'griii') renderGRIII();
-  if (name === 'ats') renderATS();
-  if (name === 'compare') renderCompare();
-  if (name === 'hc') renderHC();
-}
-
-function refreshAll() {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const pg = document.getElementById('page-' + name);
+  if (pg) pg.classList.add('active');
+  document.querySelectorAll('[data-page="' + name + '"]').forEach(b => b.classList.add('active'));
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'gri') renderGRI();
+  if (name === 'grii') { buildQ2Form(); renderGRII(); }
+  if (name === 'griii') { buildQ3Form(); renderGRIII(); }
+  if (name === 'politica') renderPolitica();
+  if (name === 'medidas') renderMedidas();
+  if (name === 'headcount') renderHC();
+  if (name === 'registros') renderRegistros();
   updateBadges();
-  // HC count label
-  const hcCnt = document.getElementById('hc-count'); if(hcCnt) hcCnt.textContent = headcountData.length;
-  const active = document.querySelector('.page.active');
-  if (!active) return;
-  const id = active.id.replace('page-', '');
-  showPage(id);
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════
+//  MODALES
+// ═══════════════════════════════════════════════
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('open');
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('open');
+}
+function closeModalOuter(e, id) {
+  if (e.target === e.currentTarget) closeModal(id);
+}
+
+// ═══════════════════════════════════════════════
 //  BADGES
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function updateBadges() {
-  const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  s('sb-b-hc', headcountData.length);
-  s('sb-b-grii', griiData.length);
-  s('sb-b-griii', griiiData.length);
-  s('sb-b-ats', atsData.length);
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('badge-gri', griData.length);
+  set('badge-grii', griiData.length);
+  set('badge-griii', griiiData.length);
+  set('badge-medidas', medidasData.filter(m => m.status !== 'completado' && m.status !== 'cancelado').length);
+  set('badge-hc', headcountData.length);
 }
 
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════
 //  DASHBOARD
-// ════════════════════════════════════════
-function renderDash() {
-  const year = (document.getElementById('dash-year')||{value:'2025'}).value;
-  const g2y = griiData.filter(d => (d.fecha||'').startsWith(year));
-  const g3y = griiiData.filter(d => (d.fecha||'').startsWith(year));
-  const atsy = atsData.filter(d => (d.fecha||'').startsWith(year));
+// ═══════════════════════════════════════════════
+function renderDashboard() {
+  const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setEl('ds-emp', headcountData.length);
+  setEl('ds-ats', griData.length);
+  setEl('ds-q2', griiData.length);
+  setEl('ds-q3', griiiData.length);
+  const altos = griiData.filter(d => d.nivel === 'alto' || d.nivel === 'muy_alto').length;
+  setEl('ds-riesgo', altos);
+  setEl('ds-medidas', medidasData.filter(m => m.status === 'pendiente' || m.status === 'en_proceso').length);
 
-  const sv = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  sv('ds-total', g2y.length + g3y.length + atsy.length);
-  sv('ds-vhigh', [...g2y,...g3y].filter(d => d.nivel === 'muy_alto').length);
-  sv('ds-high', [...g2y,...g3y].filter(d => d.nivel === 'alto').length);
-  sv('ds-low', [...g2y,...g3y].filter(d => d.nivel === 'nulo' || d.nivel === 'bajo').length);
-  sv('ds-ats', atsy.length);
-  const allAreas = new Set([...g2y.map(d=>d.area),...g3y.map(d=>d.area),...atsy.map(d=>d.area)].filter(Boolean));
-  sv('ds-areas', allAreas.size);
-
-  renderDashCharts(year, g2y, g3y, atsy);
-  renderPrioridad(g2y, g3y);
+  renderDashAlerts();
+  renderDashCharts();
 }
 
-const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-
-function renderDashCharts(year, g2y, g3y, atsy) {
-  const g2m = Array(12).fill(0), g3m = Array(12).fill(0), atm = Array(12).fill(0);
-  g2y.forEach(d => { const m = parseInt((d.fecha||'').split('-')[1])-1; if(m>=0&&m<12) g2m[m]++; });
-  g3y.forEach(d => { const m = parseInt((d.fecha||'').split('-')[1])-1; if(m>=0&&m<12) g3m[m]++; });
-  atsy.forEach(d => { const m = parseInt((d.fecha||'').split('-')[1])-1; if(m>=0&&m<12) atm[m]++; });
-
-  const cMes = document.getElementById('ch-mes');
-  if (cMes) {
-    if (chMes) chMes.destroy();
-    chMes = new Chart(cMes, { type:'bar',
-      data:{ labels:MESES, datasets:[
-        { label:'Guía II', data:g2m, backgroundColor:'rgba(13,43,90,.75)', borderRadius:4 },
-        { label:'Guía III', data:g3m, backgroundColor:'rgba(0,137,123,.7)', borderRadius:4 },
-        { label:'ATS', data:atm, backgroundColor:'rgba(245,158,11,.8)', borderRadius:4 }
-      ]},
-      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}},
-        scales:{y:{beginAtZero:true, ticks:{stepSize:1}}} }
-    });
+function renderDashAlerts() {
+  const el = document.getElementById('dash-alerts');
+  if (!el) return;
+  const alerts = [];
+  griiData.filter(d => d.nivel === 'muy_alto').forEach(d => {
+    alerts.push({ type:'danger', msg: `<b>${d.nombre}</b> — Riesgo Muy Alto en Guía II (${d.fecha})` });
+  });
+  griiData.filter(d => d.nivel === 'alto').forEach(d => {
+    alerts.push({ type:'warn', msg: `<b>${d.nombre}</b> — Riesgo Alto en Guía II (${d.fecha})` });
+  });
+  griData.filter(d => d.seguimiento === 'pendiente').forEach(d => {
+    alerts.push({ type:'warn', msg: `ATS Pendiente de seguimiento: <b>${d.nombre}</b> — ${d.tipo}` });
+  });
+  medidasData.filter(m => m.status !== 'completado' && m.limite && new Date(m.limite) < new Date()).forEach(m => {
+    alerts.push({ type:'danger', msg: `Medida VENCIDA: <b>${m.desc.substring(0,50)}…</b> (${m.limite})` });
+  });
+  if (alerts.length === 0) {
+    el.innerHTML = '<p style="color:var(--text3);padding:8px">Sin alertas activas ✓</p>';
+    return;
   }
+  el.innerHTML = alerts.map(a =>
+    `<div style="padding:8px 12px;margin-bottom:6px;border-radius:6px;border-left:4px solid var(--${a.type});background:var(--${a.type}-bg,#fff9e6);font-size:13px">${a.msg}</div>`
+  ).join('');
+}
 
-  const counts = { nulo:0, bajo:0, medio:0, alto:0, muy_alto:0 };
-  g2y.forEach(d => { if(counts[d.nivel]!==undefined) counts[d.nivel]++; });
-  const cRiesgo = document.getElementById('ch-riesgo');
-  if (cRiesgo) {
-    if (chRiesgo) chRiesgo.destroy();
-    chRiesgo = new Chart(cRiesgo, { type:'doughnut',
-      data:{ labels:['Nulo','Bajo','Medio','Alto','Muy Alto'],
-        datasets:[{ data:Object.values(counts),
-          backgroundColor:['#8B5CF6','#16A34A','#F59E0B','#DC2626','#831843'],
-          borderWidth:3, borderColor:'#fff' }]
+function renderDashCharts() {
+  const yearSel = document.getElementById('dash-year-sel');
+  const year = yearSel ? yearSel.value : '2025';
+  const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+  // Chart Mes
+  const cMes = document.getElementById('chartMes');
+  if (cMes) {
+    const q2m = Array(12).fill(0), q3m = Array(12).fill(0), atm = Array(12).fill(0);
+    griiData.filter(d => d.fecha && d.fecha.startsWith(year)).forEach(d => {
+      const m = parseInt(d.fecha.split('-')[1]) - 1;
+      if (m >= 0 && m < 12) q2m[m]++;
+    });
+    griiiData.filter(d => d.fecha && d.fecha.startsWith(year)).forEach(d => {
+      const m = parseInt(d.fecha.split('-')[1]) - 1;
+      if (m >= 0 && m < 12) q3m[m]++;
+    });
+    griData.filter(d => d.fecha && d.fecha.startsWith(year)).forEach(d => {
+      const m = parseInt(d.fecha.split('-')[1]) - 1;
+      if (m >= 0 && m < 12) atm[m]++;
+    });
+    if (chMes) chMes.destroy();
+    chMes = new Chart(cMes, {
+      type: 'bar',
+      data: { labels: MESES,
+        datasets: [
+          { label:'Guía II', data: q2m, backgroundColor:'rgba(13,43,90,.7)' },
+          { label:'Guía III', data: q3m, backgroundColor:'rgba(46,125,50,.7)' },
+          { label:'ATS', data: atm, backgroundColor:'rgba(183,28,28,.7)' }
+        ]
       },
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{ position:'bottom', labels:{ font:{ size:12 } } } },
-        cutout:'62%'
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position:'top' } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
       }
     });
   }
 
-  // Area chart
-  const areas = {};
-  g2y.forEach(d => { if(d.area) areas[d.area] = (areas[d.area]||{count:0,sum:0}); areas[d.area].count++; areas[d.area].sum += (d.score||0); });
-  const aLabels = Object.keys(areas).slice(0,8);
-  const aVals = aLabels.map(l => Math.round(areas[l].sum / areas[l].count));
-  const cArea = document.getElementById('ch-area');
-  if (cArea) {
-    if (chArea) chArea.destroy();
-    chArea = new Chart(cArea, { type:'bar',
-      data:{ labels:aLabels, datasets:[{ label:'Puntaje promedio', data:aVals,
-        backgroundColor:'rgba(13,43,90,.72)', borderRadius:5 }] },
-      options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true}} }
+  // Chart Riesgo
+  const cRiesgo = document.getElementById('chartRiesgo');
+  if (cRiesgo) {
+    const counts = { nulo:0, bajo:0, medio:0, alto:0, muy_alto:0 };
+    griiData.forEach(d => { if (counts[d.nivel] !== undefined) counts[d.nivel]++; });
+    if (chRiesgo) chRiesgo.destroy();
+    chRiesgo = new Chart(cRiesgo, {
+      type: 'doughnut',
+      data: {
+        labels: ['Nulo','Bajo','Medio','Alto','Muy Alto'],
+        datasets: [{ data: Object.values(counts),
+          backgroundColor: ['#9FA8DA','#66BB6A','#FFA726','#EF6C00','#B71C1C'],
+          borderWidth: 2 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position:'bottom' } }
+      }
     });
   }
 
-  // Trend
-  const highM = Array(12).fill(0), vhighM = Array(12).fill(0);
-  g2y.forEach(d => {
-    const m = parseInt((d.fecha||'').split('-')[1])-1;
-    if(m>=0&&m<12){ if(d.nivel==='alto') highM[m]++; if(d.nivel==='muy_alto') vhighM[m]++; }
-  });
-  const cTrend = document.getElementById('ch-trend');
-  if (cTrend) {
-    if (chTrend) chTrend.destroy();
-    chTrend = new Chart(cTrend, { type:'line',
-      data:{ labels:MESES, datasets:[
-        { label:'Alto', data:highM, borderColor:'#DC2626', backgroundColor:'rgba(220,38,38,.1)', tension:.4, fill:true },
-        { label:'Muy Alto', data:vhighM, borderColor:'#831843', backgroundColor:'rgba(131,24,67,.1)', tension:.4, fill:true }
-      ]},
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} }
+  // Chart Area
+  const cArea = document.getElementById('chartArea');
+  if (cArea) {
+    const areas = {};
+    griiData.forEach(d => { if (d.area) areas[d.area] = (areas[d.area]||0)+1; });
+    const labels = Object.keys(areas).slice(0,8);
+    const data = labels.map(l => areas[l]);
+    if (chArea) chArea.destroy();
+    chArea = new Chart(cArea, {
+      type: 'bar',
+      data: { labels,
+        datasets: [{ label:'Evaluaciones', data,
+          backgroundColor: 'rgba(13,43,90,.75)', borderRadius: 4 }]
+      },
+      options: { indexAxis:'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true } }
+      }
+    });
+  }
+
+  // Chart Tendencia
+  const cTend = document.getElementById('chartTend');
+  if (cTend) {
+    const months = MESES.map((m,i) => ({ label: m, alto:0, vhigh:0 }));
+    griiData.filter(d => d.fecha && d.fecha.startsWith(year)).forEach(d => {
+      const mi = parseInt(d.fecha.split('-')[1]) - 1;
+      if (mi >= 0 && mi < 12) {
+        if (d.nivel === 'alto') months[mi].alto++;
+        if (d.nivel === 'muy_alto') months[mi].vhigh++;
+      }
+    });
+    if (chTend) chTend.destroy();
+    chTend = new Chart(cTend, {
+      type: 'line',
+      data: {
+        labels: MESES,
+        datasets: [
+          { label:'Alto', data: months.map(m=>m.alto), borderColor:'#EF6C00', tension:.4, fill:false },
+          { label:'Muy Alto', data: months.map(m=>m.vhigh), borderColor:'#B71C1C', tension:.4, fill:false }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position:'top' } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+      }
     });
   }
 }
 
-function renderPrioridad(g2y, g3y) {
-  const tbody = document.getElementById('dash-prioridad-tbody');
+// ═══════════════════════════════════════════════
+//  GUÍA I — ATS
+// ═══════════════════════════════════════════════
+function renderGRI() {
+  const tbody = document.getElementById('gri-tbody');
+  const empty = document.getElementById('gri-empty');
   if (!tbody) return;
-  const casos = [
-    ...g2y.filter(d => d.nivel==='alto'||d.nivel==='muy_alto').map(d => ({...d, tipo:'Guía II'})),
-    ...g3y.filter(d => d.nivel==='alto'||d.nivel==='muy_alto').map(d => ({...d, tipo:'Guía III'}))
-  ].sort((a,b) => (b.score||0)-(a.score||0)).slice(0,20);
+  const search = (document.getElementById('gri-search')||{value:''}).value.toLowerCase();
+  const tipo = (document.getElementById('gri-filter-tipo')||{value:''}).value;
+  const seg = (document.getElementById('gri-filter-seg')||{value:''}).value;
 
-  if (!casos.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Sin casos de riesgo alto o muy alto ✓</td></tr>';
+  let data = griData.filter(d => {
+    const matchSearch = !search || (d.nombre||'').toLowerCase().includes(search) ||
+      (d.tipo||'').toLowerCase().includes(search) || (d.desc||'').toLowerCase().includes(search);
+    const matchTipo = !tipo || d.tipo === tipo;
+    const matchSeg = !seg || d.seguimiento === seg;
+    return matchSearch && matchTipo && matchSeg;
+  });
+
+  if (data.length === 0) {
+    tbody.innerHTML = '';
+    if (empty) empty.style.display = 'block';
     return;
   }
-  tbody.innerHTML = casos.map((d,i) => `
+  if (empty) empty.style.display = 'none';
+
+  const tipoLabels = { accidente:'Accidente grave', violencia:'Violencia laboral',
+    muerte:'Muerte compañero', asalto:'Asalto/Robo', desastre:'Desastre natural', otro:'Otro' };
+
+  tbody.innerHTML = data.map((d,i) => `
     <tr>
-      <td><b>${d.nombre||'—'}</b></td>
+      <td>${i+1}</td>
+      <td><b>${d.nombre||'—'}</b><br><small style="color:var(--text3)">${d.puesto||''}</small></td>
       <td>${d.noemp||'—'}</td>
-      <td>${d.area||'—'}</td>
-      <td><span class="badge b-info">${d.tipo}</span></td>
-      <td><b>${d.score||0}</b></td>
-      <td>${riskBadge(d.nivel)}</td>
       <td>${d.fecha||'—'}</td>
-      <td><button class="btn btn-outline btn-sm" onclick="showG2Detail(${griiData.indexOf(d)})">Ver</button></td>
+      <td>${tipoLabels[d.tipo]||d.tipo||'—'}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.desc||''}">${d.desc||'—'}</td>
+      <td>${segBadge(d.seguimiento)}</td>
+      <td>${d.prox||'—'}</td>
+      <td>
+        <div class="btn-group">
+          <button class="btn btn-outline btn-sm" onclick="editGRI(${griData.indexOf(d)})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteGRI(${griData.indexOf(d)})">🗑️</button>
+        </div>
+      </td>
     </tr>`).join('');
 }
 
-// ════════════════════════════════════════
-//  GUÍA II RENDER
-// ════════════════════════════════════════
-const GRII_CAT_LABELS = [
-  {key:'catAmbiente',label:'Ambiente de Trabajo',color:'bar-navy'},
-  {key:'catFactores',label:'Act. Propios de la Act.',color:'bar-teal'},
-  {key:'catOrg',label:'Org. Tiempo de Trabajo',color:'bar-amber'},
-  {key:'catLiderazgo',label:'Liderazgo y Relaciones',color:'bar-red'},
-  {key:'catEntorno',label:'Entorno Organizacional',color:'bar-purple'},
-  {key:'catInterferencia',label:'Interferencia Trab-Familia',color:'bar-orange'},
-  {key:'catLidNeg',label:'Liderazgo Negativo',color:'bar-red'},
+function segBadge(s) {
+  const map = { pendiente:'badge-pending', en_proceso:'badge-active', cerrado:'badge-closed' };
+  const lbl = { pendiente:'Pendiente', en_proceso:'En proceso', cerrado:'Cerrado' };
+  return `<span class="badge ${map[s]||''}">${lbl[s]||s||'—'}</span>`;
+}
+
+function saveGRI() {
+  const idx = parseInt((document.getElementById('gri-edit-idx')||{value:'-1'}).value);
+  const d = {
+    noemp: (document.getElementById('gri-noemp')||{value:''}).value.trim(),
+    nombre: (document.getElementById('gri-nombre')||{value:''}).value.trim(),
+    puesto: (document.getElementById('gri-puesto')||{value:''}).value.trim(),
+    area: (document.getElementById('gri-area')||{value:''}).value.trim(),
+    fecha: (document.getElementById('gri-fecha')||{value:''}).value,
+    tipo: (document.getElementById('gri-tipo')||{value:''}).value,
+    desc: (document.getElementById('gri-desc')||{value:''}).value.trim(),
+    seguimiento: (document.getElementById('gri-seguimiento')||{value:''}).value,
+    prox: (document.getElementById('gri-prox')||{value:''}).value,
+    notas: (document.getElementById('gri-notas')||{value:''}).value.trim(),
+    ts: new Date().toISOString()
+  };
+  if (!d.nombre) { toast('El nombre es requerido','error'); return; }
+  if (idx >= 0) griData[idx] = d; else griData.push(d);
+  save();
+  closeModal('modal-gri');
+  renderGRI();
+  updateBadges();
+  toast('Registro guardado ✓', 'success');
+  clearGRIForm();
+}
+
+function clearGRIForm() {
+  ['gri-noemp','gri-nombre','gri-puesto','gri-area','gri-fecha','gri-desc','gri-prox','gri-notas']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const ed = document.getElementById('gri-edit-idx'); if (ed) ed.value = '-1';
+}
+
+function editGRI(idx) {
+  const d = griData[idx];
+  if (!d) return;
+  ['noemp','nombre','puesto','area','fecha','tipo','desc','seguimiento','prox','notas']
+    .forEach(f => { const el = document.getElementById('gri-'+f); if (el) el.value = d[f]||''; });
+  const ed = document.getElementById('gri-edit-idx'); if (ed) ed.value = idx;
+  openModal('modal-gri');
+}
+
+function deleteGRI(idx) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  griData.splice(idx, 1);
+  save(); renderGRI(); updateBadges();
+  toast('Registro eliminado', 'warn');
+}
+
+// ═══════════════════════════════════════════════
+//  GUÍA II — CUESTIONARIO (72 preguntas)
+// ═══════════════════════════════════════════════
+const Q2_CATS = [
+  {
+    id:'amb', name:'I. Ambiente de trabajo',
+    questions:[
+      'El espacio donde trabajo es adecuado para realizar mis actividades.',
+      'Cuento con las herramientas y materiales necesarios para hacer mi trabajo.',
+      'Los equipos de trabajo funcionan correctamente.',
+      'Existe buena iluminación en mi área de trabajo.',
+      'La temperatura del lugar donde trabajo es adecuada.',
+      'El nivel de ruido en mi área de trabajo me permite concentrarme.',
+      'Existe ventilación adecuada en mi lugar de trabajo.',
+      'El orden y limpieza del área de trabajo es el adecuado.',
+    ]
+  },
+  {
+    id:'prop', name:'II. Factores propios de la actividad',
+    questions:[
+      'Mi trabajo requiere que esté muy atento.',
+      'En mi trabajo necesito mantener concentración durante largos períodos.',
+      'Mi trabajo requiere que atienda varios asuntos al mismo tiempo.',
+      'En mi trabajo tomo decisiones con consecuencias importantes.',
+      'La velocidad con que debo realizar mi trabajo es adecuada.',
+      'La cantidad de trabajo que debo realizar es adecuada.',
+      'Mi trabajo me exige ir más allá de mis capacidades.',
+      'El trabajo que realizo requiere que oculte mis emociones.',
+      'En mi trabajo debo demostrar emociones distintas a las que siento.',
+      'Mi trabajo demanda atender situaciones de violencia.',
+      'Para realizar mi trabajo necesito conocimiento técnico especializado.',
+      'Mi trabajo exige que asuma responsabilidades críticas.',
+    ]
+  },
+  {
+    id:'org', name:'III. Organización del tiempo de trabajo',
+    questions:[
+      'Mi jornada de trabajo es la establecida por la empresa.',
+      'Tengo la posibilidad de tomar descansos durante mi jornada.',
+      'El tiempo de mis descansos es suficiente.',
+      'Realizo horas extra con frecuencia.',
+      'El tiempo de traslado de mi casa al trabajo es adecuado.',
+      'Cuento con tiempo para atender mis asuntos personales.',
+      'Los horarios de entrada y salida son respetados.',
+      'Mi horario de trabajo me permite participar en actividades familiares.',
+    ]
+  },
+  {
+    id:'lid', name:'IV. Liderazgo y relaciones en el trabajo',
+    questions:[
+      'Mi jefe inmediato me da retroalimentación sobre mi desempeño.',
+      'Mi jefe inmediato resuelve los problemas de manera adecuada.',
+      'Mi jefe reconoce mi trabajo.',
+      'Mi jefe se interesa por mi bienestar.',
+      'Mi jefe es consistente y justo al tomar decisiones.',
+      'Puedo expresar mis opiniones sin temor a consecuencias.',
+      'La relación con mis compañeros de trabajo es respetuosa.',
+      'Cuento con el apoyo de mis compañeros cuando lo necesito.',
+      'Existe colaboración entre los miembros de mi equipo.',
+      'Se presentan situaciones de violencia o acoso laboral.',
+      'Se presentan situaciones de discriminación en el trabajo.',
+      'La relación con mis clientes o usuarios es adecuada.',
+    ]
+  },
+  {
+    id:'ent', name:'V. Entorno organizacional',
+    questions:[
+      'Conozco con claridad mis funciones y responsabilidades.',
+      'Las instrucciones que recibo son claras y precisas.',
+      'Recibo capacitación para realizar mis funciones.',
+      'Tengo oportunidades de crecimiento en la empresa.',
+      'La empresa me proporciona prestaciones y beneficios suficientes.',
+      'Mi salario es adecuado para el trabajo que realizo.',
+      'Participo en las decisiones relacionadas con mi trabajo.',
+      'La empresa evalúa mi desempeño de manera justa.',
+      'Existe comunicación efectiva entre áreas.',
+      'Los cambios en la empresa se comunican oportunamente.',
+      'Confío en el futuro de la empresa donde trabajo.',
+      'Me siento comprometido con la empresa.',
+    ]
+  },
+  {
+    id:'int', name:'VI. Interferencia trabajo-familia',
+    questions:[
+      'Mi trabajo interfiere con mis responsabilidades familiares.',
+      'Las exigencias de mi trabajo afectan mi vida personal.',
+      'Estoy tan cansado al llegar a casa que no me queda energía para actividades familiares.',
+      'Los problemas del trabajo afectan mi vida familiar.',
+      'Tengo dificultades para atender a mi familia por cuestiones de trabajo.',
+      'Mi familia se queja de que dedico demasiado tiempo al trabajo.',
+      'El trabajo me impide disfrutar de actividades de ocio.',
+      'Puedo desconectarme del trabajo cuando no estoy laborando.',
+    ]
+  },
+  {
+    id:'lid2', name:'VII. Liderazgo negativo',
+    questions:[
+      'Mi jefe me descalifica o menosprecia frente a otros.',
+      'Mi jefe me agrede verbalmente.',
+      'Mi jefe me ignora cuando le hago preguntas.',
+      'Mi jefe me asigna tareas innecesarias o humillantes.',
+    ]
+  },
 ];
 
-function renderGRII() {
-  const search = (document.getElementById('g2-search')||{value:''}).value.toLowerCase();
-  const riskF = (document.getElementById('g2-risk-f')||{value:''}).value;
+const Q2_OPTS = ['Siempre','Casi siempre','Algunas veces','Casi nunca','Nunca'];
 
-  let data = griiData.filter(d => {
-    const ms = !search || (d.nombre||'').toLowerCase().includes(search) || (d.noemp||'').toLowerCase().includes(search) || (d.area||'').toLowerCase().includes(search);
-    const mr = !riskF || d.nivel === riskF;
-    return ms && mr;
-  });
+// Preguntas con puntaje inverso (mayor frecuencia = más riesgo = menor puntaje)
+// Escala: Siempre=4, Casi siempre=3, Algunas veces=2, Casi nunca=1, Nunca=0
+// Invertidas (positivas): mayor respuesta = menos riesgo
+const Q2_POSITIVE_CATS = ['amb','org'];
 
-  // Stats
-  const levels = ['nulo','bajo','medio','alto','muy_alto'];
-  levels.forEach(l => {
-    const el = document.getElementById('g2-' + l.replace('muy_','v')); // g2-null, g2-low, etc
-    if (el) el.textContent = griiData.filter(d => d.nivel === l).length;
-  });
-  const sv = (id, v) => { const el = document.getElementById(id); if(el) el.textContent=v; };
-  sv('g2-null', griiData.filter(d=>d.nivel==='nulo').length);
-  sv('g2-low', griiData.filter(d=>d.nivel==='bajo').length);
-  sv('g2-med', griiData.filter(d=>d.nivel==='medio').length);
-  sv('g2-high', griiData.filter(d=>d.nivel==='alto').length);
-  sv('g2-vhigh', griiData.filter(d=>d.nivel==='muy_alto').length);
-
-  // Cat bars
-  const barsEl = document.getElementById('g2-cat-bars');
-  if (barsEl && griiData.length > 0) {
-    const maxPerCat = { catAmbiente:32, catFactores:48, catOrg:32, catLiderazgo:48, catEntorno:48, catInterferencia:32, catLidNeg:16 };
-    barsEl.innerHTML = GRII_CAT_LABELS.map(c => {
-      const avg = griiData.reduce((s,d) => s+(d[c.key]||0), 0) / griiData.length;
-      const max = maxPerCat[c.key] || 40;
-      const pct = Math.round((avg/max)*100);
-      return `<div class="rb-row">
-        <div class="rb-label">${c.label}</div>
-        <div class="rb-bar-bg"><div class="rb-bar ${c.color}" style="width:${pct}%"></div></div>
-        <div class="rb-val">${avg.toFixed(1)}</div>
+function buildQ2Form() {
+  const c = document.getElementById('q2-form');
+  if (!c || c.dataset.built) return;
+  let html = '';
+  let qi = 0;
+  Q2_CATS.forEach(cat => {
+    html += `<div class="q-section"><div class="q-section-title">${cat.name}</div>`;
+    cat.questions.forEach((q, i) => {
+      html += `<div class="q-item">
+        <div class="q-text">${qi+1}. ${q}</div>
+        <div class="q-opts">
+          ${Q2_OPTS.map((opt, oi) =>
+            `<button class="q-opt" data-q="${qi}" data-val="${oi}" onclick="selectQ2(this)">${opt}</button>`
+          ).join('')}
+        </div>
       </div>`;
-    }).join('');
-  } else if (barsEl) {
-    barsEl.innerHTML = '<p style="color:var(--text3);font-size:13px">Sin datos disponibles</p>';
-  }
+      qi++;
+    });
+    html += '</div>';
+  });
+  c.innerHTML = html;
+  c.dataset.built = '1';
+}
 
-  // Table
-  const tbody = document.getElementById('grii-tbody');
-  if (!tbody) return;
-  if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;color:var(--text3);padding:24px">Sin evaluaciones registradas</td></tr>';
+function selectQ2(btn) {
+  const q = btn.dataset.q;
+  const row = btn.closest('.q-opts');
+  if (row) row.querySelectorAll('.q-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateQ2Score();
+}
+
+function updateQ2Score() {
+  const form = document.getElementById('q2-form');
+  if (!form) return;
+  let total = 0, answered = 0;
+  const total_q = Q2_CATS.reduce((s,c) => s + c.questions.length, 0);
+  form.querySelectorAll('.q-opt.selected').forEach(b => {
+    const val = parseInt(b.dataset.val);
+    total += val;
+    answered++;
+  });
+  const result = document.getElementById('q2-result');
+  if (!result) return;
+  if (answered < total_q) {
+    result.textContent = `${answered}/${total_q} respondidas`;
     return;
   }
-  tbody.innerHTML = data.map((d, i) => `
+  const nivel = calcQ2Nivel(total);
+  result.innerHTML = `Puntaje: <b>${total}</b> — Nivel: ${riskBadge(nivel)}`;
+}
+
+function calcQ2Nivel(score) {
+  // Escala aproximada NOM-035: 0-72 nulo, 73-90 bajo, 91-117 medio, 118-144 alto, >144 muy alto
+  if (score <= 20) return 'nulo';
+  if (score <= 45) return 'bajo';
+  if (score <= 70) return 'medio';
+  if (score <= 90) return 'alto';
+  return 'muy_alto';
+}
+
+function openGRIIModal() {
+  buildQ2Form();
+  // Reset form
+  const form = document.getElementById('q2-form');
+  if (form) form.querySelectorAll('.q-opt').forEach(b => b.classList.remove('selected'));
+  ['q2-noemp','q2-nombre','q2-puesto','q2-area'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  const fd = document.getElementById('q2-fecha');
+  if (fd) fd.value = today();
+  const ei = document.getElementById('q2-edit-idx');
+  if (ei) ei.value = '-1';
+  const res = document.getElementById('q2-result');
+  if (res) res.textContent = '';
+  openModal('modal-grii');
+}
+
+function saveGRII() {
+  const form = document.getElementById('q2-form');
+  if (!form) return;
+  const total_q = Q2_CATS.reduce((s,c) => s + c.questions.length, 0);
+  const selected = form.querySelectorAll('.q-opt.selected');
+  if (selected.length < total_q) {
+    toast(`Responde las ${total_q} preguntas (faltan ${total_q - selected.length})`, 'warn');
+    return;
+  }
+  let score = 0;
+  selected.forEach(b => score += parseInt(b.dataset.val));
+
+  // Cat scores
+  let qi = 0;
+  const catScores = {};
+  Q2_CATS.forEach(cat => {
+    let cs = 0;
+    cat.questions.forEach(() => {
+      const btn = form.querySelector(`.q-opt.selected[data-q="${qi}"]`);
+      if (btn) cs += parseInt(btn.dataset.val);
+      qi++;
+    });
+    catScores[cat.id] = cs;
+  });
+
+  const idx = parseInt((document.getElementById('q2-edit-idx')||{value:'-1'}).value);
+  const d = {
+    noemp: (document.getElementById('q2-noemp')||{value:''}).value.trim(),
+    nombre: (document.getElementById('q2-nombre')||{value:''}).value.trim(),
+    puesto: (document.getElementById('q2-puesto')||{value:''}).value.trim(),
+    area: (document.getElementById('q2-area')||{value:''}).value.trim(),
+    fecha: (document.getElementById('q2-fecha')||{value:''}).value,
+    score, nivel: calcQ2Nivel(score),
+    catAmbiente: catScores['amb']||0,
+    catFactores: catScores['prop']||0,
+    catOrg: catScores['org']||0,
+    catLid: catScores['lid']||0,
+    catEnt: catScores['ent']||0,
+    catInt: catScores['int']||0,
+    ts: new Date().toISOString()
+  };
+  if (!d.nombre) { toast('El nombre es requerido', 'error'); return; }
+  if (idx >= 0) griiData[idx] = d; else griiData.push(d);
+  save();
+  closeModal('modal-grii');
+  renderGRII();
+  updateBadges();
+  toast('Cuestionario guardado ✓', 'success');
+}
+
+function renderGRII() {
+  const tbody = document.getElementById('grii-tbody');
+  const empty = document.getElementById('grii-empty');
+  if (!tbody) return;
+  const search = (document.getElementById('grii-search')||{value:''}).value.toLowerCase();
+  const risk = (document.getElementById('grii-filter-risk')||{value:''}).value;
+  const area = (document.getElementById('grii-filter-area')||{value:''}).value;
+
+  let data = griiData.filter(d => {
+    const ms = !search || (d.nombre||'').toLowerCase().includes(search) || (d.area||'').toLowerCase().includes(search);
+    const mr = !risk || d.nivel === risk;
+    const ma = !area || d.area === area;
+    return ms && mr && ma;
+  });
+
+  if (data.length === 0) {
+    tbody.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  // Populate area filter
+  const areaEl = document.getElementById('grii-filter-area');
+  if (areaEl && areaEl.options.length <= 1) {
+    const areas = [...new Set(griiData.map(d=>d.area).filter(Boolean))];
+    areas.forEach(a => { const o = new Option(a,a); areaEl.add(o); });
+  }
+
+  tbody.innerHTML = data.map((d,i) => `
     <tr>
       <td>${i+1}</td>
-      <td><b>${d.nombre||'—'}</b></td>
-      <td>${d.noemp||'—'}</td>
+      <td><b>${d.nombre||'—'}</b><br><small style="color:var(--text3)">${d.puesto||''}</small></td>
       <td>${d.area||'—'}</td>
-      <td>${d.turno||'—'}</td>
       <td>${d.fecha||'—'}</td>
       <td><b>${d.score||0}</b></td>
       <td>${riskBadge(d.nivel)}</td>
       <td>${d.catAmbiente||0}</td>
       <td>${d.catFactores||0}</td>
       <td>${d.catOrg||0}</td>
-      <td>${d.catLiderazgo||0}</td>
-      <td>${d.catEntorno||0}</td>
-      <td>${d.catInterferencia||0}</td>
-      <td>${d.catLidNeg||0}</td>
-      <td><button class="btn btn-outline btn-sm" onclick="showG2Detail(${griiData.indexOf(d)})">👁️</button></td>
+      <td>
+        <div class="btn-group">
+          <button class="btn btn-outline btn-sm" onclick="viewGRII(${griiData.indexOf(d)})">👁️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteGRII(${griiData.indexOf(d)})">🗑️</button>
+        </div>
+      </td>
     </tr>`).join('');
 }
 
-function showG2Detail(idx) {
-  const d = griiData[idx]; if (!d) return;
-  const t = document.getElementById('g2d-title');
-  if (t) t.textContent = `${d.nombre||'—'} — ${d.fecha||'—'}`;
-  const body = document.getElementById('g2d-body');
-  if (!body) return;
-  const maxCats = { catAmbiente:32, catFactores:48, catOrg:32, catLiderazgo:48, catEntorno:48, catInterferencia:32, catLidNeg:16 };
-  body.innerHTML = `
-    <div class="detail-grid">
-      <div class="detail-item"><div class="di-label">Empleado</div><div class="di-val">${d.nombre||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">No. Empleado</div><div class="di-val">${d.noemp||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Área</div><div class="di-val">${d.area||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Turno</div><div class="di-val">${d.turno||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Fecha</div><div class="di-val">${d.fecha||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Puntaje Total</div><div class="di-val">${d.score||0} pts</div></div>
-      <div class="detail-item"><div class="di-label">Nivel de Riesgo</div><div class="di-val">${riskBadge(d.nivel)}</div></div>
-    </div>
-    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0"/>
-    <div style="font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">Desglose por Categoría</div>
-    <div class="risk-breakdown">
-      ${GRII_CAT_LABELS.map(c => {
-        const max = maxCats[c.key] || 40;
-        const val = d[c.key] || 0;
-        const pct = Math.round((val/max)*100);
-        return `<div class="rb-row">
-          <div class="rb-label">${c.label}</div>
-          <div class="rb-bar-bg"><div class="rb-bar ${c.color}" style="width:${pct}%"></div></div>
-          <div class="rb-val">${val}</div>
-        </div>`;
-      }).join('')}
-    </div>
-    ${d.nivel === 'alto' || d.nivel === 'muy_alto' ? `
-    <div style="margin-top:20px;background:var(--red-bg);border-radius:var(--r-sm);padding:14px 16px;border-left:4px solid var(--red)">
-      <div style="font-weight:700;color:var(--red);font-size:13px;margin-bottom:4px">⚠️ Acción Recomendada</div>
-      <div style="font-size:13px;color:#7f1d1d">Este empleado presenta un nivel de riesgo ${d.nivel === 'muy_alto' ? '<b>Muy Alto</b> — requiere intervención inmediata y plan de acción urgente' : '<b>Alto</b> — requiere plan de acción en los próximos 30 días'}. Coordinar con Recursos Humanos y médico del trabajo.</div>
-    </div>` : ''}`;
-  openModal('modal-g2-detail');
+function viewGRII(idx) {
+  const d = griiData[idx];
+  if (!d) return;
+  toast(`${d.nombre} — ${riskLabel(d.nivel)} (${d.score} pts)`, 'info');
 }
 
-// ════════════════════════════════════════
-//  GUÍA III RENDER
-// ════════════════════════════════════════
-const GRIII_CAT_LABELS = [
-  {key:'catLiderazgo',label:'Liderazgo',color:'bar-navy'},
-  {key:'catRelaciones',label:'Relaciones en el Trabajo',color:'bar-teal'},
-  {key:'catParticipacion',label:'Participación en Decisiones',color:'bar-amber'},
-  {key:'catDistribucion',label:'Distribución de Tareas',color:'bar-purple'},
-  {key:'catCapacitacion',label:'Capacitación e Información',color:'bar-green'},
+function deleteGRII(idx) {
+  if (!confirm('¿Eliminar este cuestionario?')) return;
+  griiData.splice(idx, 1);
+  save(); renderGRII(); updateBadges();
+  toast('Cuestionario eliminado', 'warn');
+}
+
+// ═══════════════════════════════════════════════
+//  GUÍA III — ENTORNO ORGANIZACIONAL (23 preguntas)
+// ═══════════════════════════════════════════════
+const Q3_CATS = [
+  {
+    id:'lid3', name:'Liderazgo',
+    questions:[
+      'Mi jefe directo me da a conocer de manera clara lo que espera de mi trabajo.',
+      'Mi jefe directo toma en cuenta mis aportaciones.',
+      'Mi jefe directo me trata con respeto.',
+      'Mi jefe directo asigna la carga de trabajo de manera equitativa.',
+      'Mi jefe directo tiene conocimiento del trabajo que desempeño.',
+    ]
+  },
+  {
+    id:'rel3', name:'Relaciones en el trabajo',
+    questions:[
+      'Cuento con el apoyo de mis compañeros para realizar mis tareas.',
+      'En mi área de trabajo existe colaboración para realizar las tareas.',
+      'En mi trabajo se establecen relaciones de respeto mutuo.',
+      'Mis compañeros de trabajo son accesibles cuando los necesito.',
+      'Se me integra y se me toma en cuenta dentro de mi equipo de trabajo.',
+      'Me resulta fácil relacionarme en el trabajo.',
+    ]
+  },
+  {
+    id:'par3', name:'Participación en las decisiones',
+    questions:[
+      'Cuando se presentan situaciones problemáticas en mi área de trabajo, se me consulta.',
+      'Tengo libertad para tomar decisiones necesarias para cumplir con mi trabajo.',
+      'Puedo participar en la asignación de mis tareas.',
+      'Me resulta sencillo aportar ideas y sugerencias en mi área de trabajo.',
+    ]
+  },
+  {
+    id:'dis3', name:'Distribución de tareas',
+    questions:[
+      'Considero que las tareas que realizo corresponden a mis funciones.',
+      'La empresa distribuye adecuadamente las responsabilidades entre áreas y personas.',
+      'La carga de trabajo que me corresponde está claramente definida.',
+    ]
+  },
+  {
+    id:'cap3', name:'Capacitación e información',
+    questions:[
+      'La empresa me proporciona capacitación o entrenamiento para realizar mi trabajo.',
+      'La empresa me proporciona información sobre los cambios que me afectan.',
+      'Tengo a mi disposición información actualizada y clara para desempeñar mi trabajo.',
+      'La empresa me informa sobre los resultados de mi desempeño.',
+    ]
+  },
 ];
 
-function renderGRIII() {
-  const search = (document.getElementById('g3-search')||{value:''}).value.toLowerCase();
-  let data = griiiData.filter(d =>
-    !search || (d.area||'').toLowerCase().includes(search) || (d.aplicador||'').toLowerCase().includes(search)
-  );
-
-  const sv = (id, v) => { const el = document.getElementById(id); if(el) el.textContent=v; };
-  sv('g3-null', griiiData.filter(d=>d.nivel==='nulo').length);
-  sv('g3-low', griiiData.filter(d=>d.nivel==='bajo').length);
-  sv('g3-med', griiiData.filter(d=>d.nivel==='medio').length);
-  sv('g3-high', griiiData.filter(d=>d.nivel==='alto').length);
-  sv('g3-vhigh', griiiData.filter(d=>d.nivel==='muy_alto').length);
-
-  const barsEl = document.getElementById('g3-cat-bars');
-  if (barsEl && griiiData.length > 0) {
-    const maxPerCat = { catLiderazgo:20, catRelaciones:24, catParticipacion:16, catDistribucion:12, catCapacitacion:20 };
-    barsEl.innerHTML = GRIII_CAT_LABELS.map(c => {
-      const avg = griiiData.reduce((s,d) => s+(d[c.key]||0), 0) / griiiData.length;
-      const max = maxPerCat[c.key] || 20;
-      const pct = Math.round((avg/max)*100);
-      return `<div class="rb-row">
-        <div class="rb-label">${c.label}</div>
-        <div class="rb-bar-bg"><div class="rb-bar ${c.color}" style="width:${pct}%"></div></div>
-        <div class="rb-val">${avg.toFixed(1)}</div>
+function buildQ3Form() {
+  const c = document.getElementById('q3-form');
+  if (!c || c.dataset.built) return;
+  let html = '';
+  let qi = 0;
+  Q3_CATS.forEach(cat => {
+    html += `<div class="q-section"><div class="q-section-title">${cat.name}</div>`;
+    cat.questions.forEach((q, i) => {
+      html += `<div class="q-item">
+        <div class="q-text">${qi+1}. ${q}</div>
+        <div class="q-opts">
+          ${['Siempre','Casi siempre','Algunas veces','Casi nunca','Nunca'].map((opt, oi) =>
+            `<button class="q-opt" data-q3="${qi}" data-val="${oi}" onclick="selectQ3(this)">${opt}</button>`
+          ).join('')}
+        </div>
       </div>`;
-    }).join('');
-  } else if (barsEl) {
-    barsEl.innerHTML = '<p style="color:var(--text3);font-size:13px">Sin datos disponibles</p>';
-  }
+      qi++;
+    });
+    html += '</div>';
+  });
+  c.innerHTML = html;
+  c.dataset.built = '1';
+}
 
+function selectQ3(btn) {
+  const q = btn.dataset.q3;
+  const row = btn.closest('.q-opts');
+  if (row) row.querySelectorAll('.q-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateQ3Score();
+}
+
+function updateQ3Score() {
+  const form = document.getElementById('q3-form');
+  if (!form) return;
+  const total_q = Q3_CATS.reduce((s,c) => s + c.questions.length, 0);
+  let total = 0;
+  form.querySelectorAll('.q-opt.selected').forEach(b => total += parseInt(b.dataset.val));
+  const result = document.getElementById('q3-result');
+  if (!result) return;
+  const answered = form.querySelectorAll('.q-opt.selected').length;
+  const nivel = calcQ3Nivel(total);
+  result.innerHTML = answered < total_q
+    ? `${answered}/${total_q} respondidas`
+    : `Puntaje: <b>${total}</b> — Nivel: ${riskBadge(nivel)}`;
+}
+
+function calcQ3Nivel(score) {
+  if (score <= 10) return 'nulo';
+  if (score <= 20) return 'bajo';
+  if (score <= 30) return 'medio';
+  if (score <= 40) return 'alto';
+  return 'muy_alto';
+}
+
+function openGRIIIModal() {
+  buildQ3Form();
+  const form = document.getElementById('q3-form');
+  if (form) form.querySelectorAll('.q-opt').forEach(b => b.classList.remove('selected'));
+  ['q3-area','q3-participantes'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  const fd = document.getElementById('q3-fecha');
+  if (fd) fd.value = today();
+  const ap = document.getElementById('q3-aplicador');
+  if (ap) ap.value = MEDICO;
+  const ei = document.getElementById('q3-edit-idx');
+  if (ei) ei.value = '-1';
+  const res = document.getElementById('q3-result');
+  if (res) res.textContent = '';
+  openModal('modal-griii');
+}
+
+function saveGRIII() {
+  const form = document.getElementById('q3-form');
+  if (!form) return;
+  const total_q = Q3_CATS.reduce((s,c) => s + c.questions.length, 0);
+  if (form.querySelectorAll('.q-opt.selected').length < total_q) {
+    toast('Responde todas las preguntas', 'warn'); return;
+  }
+  let score = 0;
+  form.querySelectorAll('.q-opt.selected').forEach(b => score += parseInt(b.dataset.val));
+  let qi = 0;
+  const catScores = {};
+  Q3_CATS.forEach(cat => {
+    let cs = 0;
+    cat.questions.forEach(() => {
+      const btn = form.querySelector(`.q-opt.selected[data-q3="${qi}"]`);
+      if (btn) cs += parseInt(btn.dataset.val);
+      qi++;
+    });
+    catScores[cat.id] = cs;
+  });
+  const idx = parseInt((document.getElementById('q3-edit-idx')||{value:'-1'}).value);
+  const d = {
+    area: (document.getElementById('q3-area')||{value:''}).value.trim(),
+    aplicador: (document.getElementById('q3-aplicador')||{value:''}).value.trim(),
+    fecha: (document.getElementById('q3-fecha')||{value:''}).value,
+    participantes: (document.getElementById('q3-participantes')||{value:'1'}).value,
+    score, nivel: calcQ3Nivel(score),
+    catLid: catScores['lid3']||0,
+    catRel: catScores['rel3']||0,
+    catPar: catScores['par3']||0,
+    catDis: catScores['dis3']||0,
+    catCap: catScores['cap3']||0,
+    ts: new Date().toISOString()
+  };
+  if (!d.area) { toast('El área es requerida', 'error'); return; }
+  if (idx >= 0) griiiData[idx] = d; else griiiData.push(d);
+  save();
+  closeModal('modal-griii');
+  renderGRIII();
+  updateBadges();
+  toast('Evaluación guardada ✓', 'success');
+}
+
+function renderGRIII() {
   const tbody = document.getElementById('griii-tbody');
+  const empty = document.getElementById('griii-empty');
   if (!tbody) return;
-  if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;color:var(--text3);padding:24px">Sin evaluaciones registradas</td></tr>';
+  const search = (document.getElementById('griii-search')||{value:''}).value.toLowerCase();
+  const risk = (document.getElementById('griii-filter-risk')||{value:''}).value;
+
+  let data = griiiData.filter(d => {
+    const ms = !search || (d.area||'').toLowerCase().includes(search) || (d.aplicador||'').toLowerCase().includes(search);
+    const mr = !risk || d.nivel === risk;
+    return ms && mr;
+  });
+
+  if (data.length === 0) {
+    tbody.innerHTML = '';
+    if (empty) empty.style.display = 'block';
     return;
   }
-  tbody.innerHTML = data.map((d, i) => `
+  if (empty) empty.style.display = 'none';
+
+  tbody.innerHTML = data.map((d,i) => `
     <tr>
       <td>${i+1}</td>
       <td><b>${d.area||'—'}</b></td>
       <td>${d.aplicador||'—'}</td>
-      <td>${d.participantes||'—'}</td>
       <td>${d.fecha||'—'}</td>
       <td><b>${d.score||0}</b></td>
       <td>${riskBadge(d.nivel)}</td>
-      <td>${d.catLiderazgo||0}</td>
-      <td>${d.catRelaciones||0}</td>
-      <td>${d.catParticipacion||0}</td>
-      <td>${d.catDistribucion||0}</td>
-      <td>${d.catCapacitacion||0}</td>
-      <td><button class="btn btn-outline btn-sm" onclick="showG3Detail(${griiiData.indexOf(d)})">👁️</button></td>
+      <td>${d.catLid||0}</td>
+      <td>${d.catRel||0}</td>
+      <td>${d.catPar||0}</td>
+      <td>
+        <div class="btn-group">
+          <button class="btn btn-danger btn-sm" onclick="deleteGRIII(${griiiData.indexOf(d)})">🗑️</button>
+        </div>
+      </td>
     </tr>`).join('');
 }
 
-function showG3Detail(idx) {
-  // Reusar modal g2-detail con contenido de g3
-  const d = griiiData[idx]; if (!d) return;
-  const t = document.getElementById('g2d-title');
-  if (t) t.textContent = `Guía III — ${d.area||'—'} — ${d.fecha||'—'}`;
-  const body = document.getElementById('g2d-body');
-  if (!body) return;
-  const maxCats = { catLiderazgo:20, catRelaciones:24, catParticipacion:16, catDistribucion:12, catCapacitacion:20 };
-  body.innerHTML = `
-    <div class="detail-grid">
-      <div class="detail-item"><div class="di-label">Área Evaluada</div><div class="di-val">${d.area||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Aplicador</div><div class="di-val">${d.aplicador||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Participantes</div><div class="di-val">${d.participantes||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Fecha</div><div class="di-val">${d.fecha||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Puntaje</div><div class="di-val">${d.score||0} pts</div></div>
-      <div class="detail-item"><div class="di-label">Nivel</div><div class="di-val">${riskBadge(d.nivel)}</div></div>
-    </div>
-    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0"/>
-    <div style="font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">Desglose por Dimensión</div>
-    <div class="risk-breakdown">
-      ${GRIII_CAT_LABELS.map(c => {
-        const max = maxCats[c.key] || 20;
-        const val = d[c.key] || 0;
-        const pct = Math.round((val/max)*100);
-        return `<div class="rb-row">
-          <div class="rb-label">${c.label}</div>
-          <div class="rb-bar-bg"><div class="rb-bar ${c.color}" style="width:${pct}%"></div></div>
-          <div class="rb-val">${val}</div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  openModal('modal-g2-detail');
+function deleteGRIII(idx) {
+  if (!confirm('¿Eliminar esta evaluación?')) return;
+  griiiData.splice(idx, 1);
+  save(); renderGRIII(); updateBadges();
+  toast('Evaluación eliminada', 'warn');
 }
 
-// ════════════════════════════════════════
-//  ATS RENDER
-// ════════════════════════════════════════
-const ATS_TIPO_LBL = { accidente:'Accidente grave', violencia:'Violencia', muerte:'Muerte compañero', asalto:'Asalto/Robo', desastre:'Desastre', acoso:'Acoso', otro:'Otro' };
-const ATS_ATEN_LBL = { si:'Solicita atención', no_por_ahora:'Lo considerará', no:'No requiere' };
+// ═══════════════════════════════════════════════
+//  POLÍTICA DE PREVENCIÓN
+// ═══════════════════════════════════════════════
+function renderPolitica() {
+  const p = politicaData;
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v||''; };
+  setVal('pol-version', p.version);
+  setVal('pol-fecha', p.fecha);
+  setVal('pol-firmante', p.firmante);
+  setVal('pol-cedula', p.cedula);
+  setVal('pol-texto', p.texto);
+  renderCommitments();
+  renderPolHist();
+}
 
-function renderATS() {
-  const search = (document.getElementById('ats-search')||{value:''}).value.toLowerCase();
-  const tipoF = (document.getElementById('ats-f-tipo')||{value:''}).value;
-  let data = atsData.filter(d => {
-    const ms = !search || (d.nombre||'').toLowerCase().includes(search) || (d.noemp||'').toLowerCase().includes(search);
-    const mt = !tipoF || d.tipoEvento === tipoF;
-    return ms && mt;
-  });
-  const tbody = document.getElementById('ats-tbody');
-  if (!tbody) return;
-  if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px">Sin reportes registrados</td></tr>';
+function renderCommitments() {
+  const el = document.getElementById('commitments-list');
+  if (!el) return;
+  if (!politicaData.compromisos || politicaData.compromisos.length === 0) {
+    el.innerHTML = '<p style="color:var(--text3);padding:8px">Sin compromisos registrados</p>';
     return;
   }
+  el.innerHTML = politicaData.compromisos.map((c, i) => `
+    <div class="commitment-item">
+      <div class="check-circle ${c.cumplido?'checked':''}" onclick="toggleCommit(${i})" title="Marcar como cumplido">
+        ${c.cumplido ? '✓' : ''}
+      </div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${c.texto||''}</div>
+        <div style="font-size:12px;color:var(--text3)">${c.resp||''}</div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-outline btn-sm" onclick="editCommit(${i})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCommit(${i})">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderPolHist() {
+  const tbody = document.getElementById('pol-hist-tbody');
+  if (!tbody) return;
+  const hist = politicaData.historial || [];
+  if (hist.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text3);text-align:center">Sin historial</td></tr>'; return; }
+  tbody.innerHTML = hist.map(h =>
+    `<tr><td>${h.version}</td><td>${h.fecha}</td><td>${h.firmante}</td><td>${h.resumen||''}</td></tr>`
+  ).join('');
+}
+
+function savePolitica() {
+  politicaData.version = (document.getElementById('pol-version')||{value:''}).value.trim();
+  politicaData.fecha = (document.getElementById('pol-fecha')||{value:''}).value;
+  politicaData.firmante = (document.getElementById('pol-firmante')||{value:''}).value.trim();
+  politicaData.cedula = (document.getElementById('pol-cedula')||{value:''}).value.trim();
+  politicaData.texto = (document.getElementById('pol-texto')||{value:''}).value.trim();
+  // Add to history
+  if (politicaData.version) {
+    const exists = (politicaData.historial||[]).find(h => h.version === politicaData.version);
+    if (!exists) {
+      if (!politicaData.historial) politicaData.historial = [];
+      politicaData.historial.push({
+        version: politicaData.version,
+        fecha: politicaData.fecha,
+        firmante: politicaData.firmante,
+        resumen: politicaData.texto.substring(0,80) + '…'
+      });
+    }
+  }
+  save();
+  renderPolHist();
+  toast('Política guardada ✓', 'success');
+}
+
+function addCommitment() {
+  const ei = document.getElementById('commit-edit-idx');
+  if (ei) ei.value = '-1';
+  const ct = document.getElementById('commit-text');
+  if (ct) ct.value = '';
+  const cr = document.getElementById('commit-resp');
+  if (cr) cr.value = '';
+  openModal('modal-commit');
+}
+
+function saveCommitment() {
+  const texto = (document.getElementById('commit-text')||{value:''}).value.trim();
+  const resp = (document.getElementById('commit-resp')||{value:''}).value.trim();
+  const idx = parseInt((document.getElementById('commit-edit-idx')||{value:'-1'}).value);
+  if (!texto) { toast('Ingrese el texto del compromiso', 'error'); return; }
+  if (!politicaData.compromisos) politicaData.compromisos = [];
+  const c = { texto, resp, cumplido: false };
+  if (idx >= 0) politicaData.compromisos[idx] = { ...politicaData.compromisos[idx], texto, resp };
+  else politicaData.compromisos.push(c);
+  save();
+  closeModal('modal-commit');
+  renderCommitments();
+  toast('Compromiso guardado ✓', 'success');
+}
+
+function editCommit(idx) {
+  const c = (politicaData.compromisos||[])[idx];
+  if (!c) return;
+  const ct = document.getElementById('commit-text');
+  if (ct) ct.value = c.texto||'';
+  const cr = document.getElementById('commit-resp');
+  if (cr) cr.value = c.resp||'';
+  const ei = document.getElementById('commit-edit-idx');
+  if (ei) ei.value = idx;
+  openModal('modal-commit');
+}
+
+function deleteCommit(idx) {
+  if (!confirm('¿Eliminar este compromiso?')) return;
+  politicaData.compromisos.splice(idx, 1);
+  save(); renderCommitments();
+  toast('Compromiso eliminado', 'warn');
+}
+
+function toggleCommit(idx) {
+  const c = (politicaData.compromisos||[])[idx];
+  if (!c) return;
+  c.cumplido = !c.cumplido;
+  save(); renderCommitments();
+}
+
+// ═══════════════════════════════════════════════
+//  MEDIDAS DE CONTROL
+// ═══════════════════════════════════════════════
+function renderMedidas() {
+  const tbody = document.getElementById('med-tbody');
+  if (!tbody) return;
+  const search = (document.getElementById('med-search')||{value:''}).value.toLowerCase();
+  const status = (document.getElementById('med-filter-status')||{value:''}).value;
+  const risk = (document.getElementById('med-filter-risk')||{value:''}).value;
+
+  let data = medidasData.filter(d => {
+    const ms = !search || (d.desc||'').toLowerCase().includes(search) || (d.resp||'').toLowerCase().includes(search);
+    const mst = !status || d.status === status;
+    const mr = !risk || d.risk === risk;
+    return ms && mst && mr;
+  });
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text3);text-align:center;padding:24px">Sin medidas registradas</td></tr>';
+    return;
+  }
+
   tbody.innerHTML = data.map((d, i) => `
     <tr>
       <td>${i+1}</td>
-      <td><b>${d.nombre||'—'}</b></td>
-      <td>${d.noemp||'—'}</td>
+      <td style="max-width:220px">${d.desc||'—'}</td>
+      <td>${riskBadge(d.risk)}</td>
+      <td>${d.resp||'—'}</td>
       <td>${d.area||'—'}</td>
-      <td>${d.fecha||'—'}</td>
-      <td>${d.fechaEvento||'—'}</td>
-      <td><span class="badge b-info">${ATS_TIPO_LBL[d.tipoEvento]||d.tipoEvento||'—'}</span></td>
-      <td>${d.rol||'—'}</td>
-      <td><span class="badge ${d.atencion==='si'?'b-high':'b-gray'}">${ATS_ATEN_LBL[d.atencion]||'—'}</span></td>
-      <td><button class="btn btn-outline btn-sm" onclick="showATSDetail(${atsData.indexOf(d)})">👁️</button></td>
+      <td>${d.inicio||'—'}</td>
+      <td>${d.limite||'—'}</td>
+      <td>
+        <div class="progress" style="width:80px">
+          <div class="progress-bar ${progClass(d.avance)}" style="width:${d.avance||0}%"></div>
+        </div>
+        <small>${d.avance||0}%</small>
+      </td>
+      <td>${statusBadge(d.status)}</td>
+      <td>
+        <div class="btn-group">
+          <button class="btn btn-outline btn-sm" onclick="editMedida(${medidasData.indexOf(d)})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMedida(${medidasData.indexOf(d)})">🗑️</button>
+        </div>
+      </td>
     </tr>`).join('');
 }
 
-function showATSDetail(idx) {
-  const d = atsData[idx]; if (!d) return;
-  const t = document.getElementById('atsd-title');
-  if (t) t.textContent = `ATS — ${d.nombre||'—'} — ${d.fecha||'—'}`;
-  const body = document.getElementById('atsd-body');
-  if (!body) return;
-  body.innerHTML = `
-    <div class="detail-grid">
-      <div class="detail-item"><div class="di-label">Empleado</div><div class="di-val">${d.nombre||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">No. Empleado</div><div class="di-val">${d.noemp||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Área</div><div class="di-val">${d.area||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Fecha Reporte</div><div class="di-val">${d.fecha||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Fecha Evento</div><div class="di-val">${d.fechaEvento||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Tipo</div><div class="di-val">${ATS_TIPO_LBL[d.tipoEvento]||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Rol del Empleado</div><div class="di-val">${d.rol||'—'}</div></div>
-      <div class="detail-item"><div class="di-label">Solicita Atención</div><div class="di-val">${ATS_ATEN_LBL[d.atencion]||'—'}</div></div>
-    </div>
-    ${d.descripcion ? `<div style="margin-top:14px"><div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px">DESCRIPCIÓN</div><div style="font-size:13px;background:var(--bg);padding:12px;border-radius:var(--r-sm)">${d.descripcion}</div></div>` : ''}
-    ${d.sentimiento ? `<div style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px">IMPACTO PERSONAL</div><div style="font-size:13px;background:var(--bg);padding:12px;border-radius:var(--r-sm)">${d.sentimiento}</div></div>` : ''}
-    ${d.atencion === 'si' ? `<div style="margin-top:16px;background:var(--amber-bg);border-radius:var(--r-sm);padding:14px;border-left:4px solid var(--amber)"><b style="color:var(--amber)">⚡ Requiere atención</b> — Este empleado solicitó atención médica o psicológica. Coordinar cita a la brevedad.</div>` : ''}`;
-  openModal('modal-ats-detail');
+function progClass(v) {
+  const n = parseInt(v)||0;
+  if (n >= 80) return 'success';
+  if (n >= 40) return 'warn';
+  return 'danger';
 }
 
-// ════════════════════════════════════════
-//  COMPARATIVO
-// ════════════════════════════════════════
-function renderCompare() {
-  const areas2 = {};
-  griiData.forEach(d => {
-    if (!d.area) return;
-    if (!areas2[d.area]) areas2[d.area] = { count:0, sum:0, niveles:{} };
-    areas2[d.area].count++;
-    areas2[d.area].sum += (d.score||0);
-    areas2[d.area].niveles[d.nivel] = (areas2[d.area].niveles[d.nivel]||0)+1;
-  });
-  const areas3 = {};
-  griiiData.forEach(d => {
-    if (!d.area) return;
-    if (!areas3[d.area]) areas3[d.area] = { count:0, sum:0 };
-    areas3[d.area].count++;
-    areas3[d.area].sum += (d.score||0);
-  });
-
-  const allAreas = [...new Set([...Object.keys(areas2), ...Object.keys(areas3)])].sort();
-
-  // Charts
-  const cG2 = document.getElementById('ch-comp-g2');
-  if (cG2) {
-    if (chCompG2) chCompG2.destroy();
-    const lbs = Object.keys(areas2).slice(0,10);
-    const vals = lbs.map(a => Math.round(areas2[a].sum/areas2[a].count));
-    chCompG2 = new Chart(cG2, { type:'bar',
-      data:{ labels:lbs, datasets:[{ label:'Prom. Puntaje', data:vals,
-        backgroundColor:vals.map(v => v>70?'#DC2626':v>45?'#F59E0B':'#16A34A'),
-        borderRadius:5 }] },
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
-    });
-  }
-  const cG3 = document.getElementById('ch-comp-g3');
-  if (cG3) {
-    if (chCompG3) chCompG3.destroy();
-    const lbs = Object.keys(areas3).slice(0,10);
-    const vals = lbs.map(a => Math.round(areas3[a].sum/areas3[a].count));
-    chCompG3 = new Chart(cG3, { type:'bar',
-      data:{ labels:lbs, datasets:[{ label:'Prom. Puntaje', data:vals,
-        backgroundColor:vals.map(v => v>30?'#DC2626':v>20?'#F59E0B':'#16A34A'),
-        borderRadius:5 }] },
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
-    });
-  }
-
-  const tbody = document.getElementById('comp-tbody');
-  if (!tbody) return;
-  tbody.innerHTML = allAreas.map(a => {
-    const d2 = areas2[a] || { count:0, sum:0 };
-    const d3 = areas3[a] || { count:0, sum:0 };
-    const atsCount = atsData.filter(d => d.area === a).length;
-    const avg2 = d2.count ? Math.round(d2.sum/d2.count) : 0;
-    const avg3 = d3.count ? Math.round(d3.sum/d3.count) : 0;
-    const niv2 = avg2 <= 20?'nulo':avg2<=45?'bajo':avg2<=70?'medio':avg2<=90?'alto':'muy_alto';
-    const niv3 = avg3 <= 10?'nulo':avg3<=20?'bajo':avg3<=30?'medio':avg3<=40?'alto':'muy_alto';
-    return `<tr>
-      <td><b>${a}</b></td>
-      <td>${d2.count||'—'}</td>
-      <td>${avg2||'—'}</td>
-      <td>${d2.count?riskBadge(niv2):'—'}</td>
-      <td>${d3.count||'—'}</td>
-      <td>${avg3||'—'}</td>
-      <td>${d3.count?riskBadge(niv3):'—'}</td>
-      <td>${atsCount||'—'}</td>
-    </tr>`;
-  }).join('');
+function statusBadge(s) {
+  const map = { pendiente:'badge-pending', en_proceso:'badge-active',
+    completado:'badge-low', cancelado:'badge-closed' };
+  const lbl = { pendiente:'Pendiente', en_proceso:'En proceso',
+    completado:'Completado', cancelado:'Cancelado' };
+  return `<span class="badge ${map[s]||''}">${lbl[s]||s||'—'}</span>`;
 }
 
-// ════════════════════════════════════════
-//  POR EMPLEADO
-// ════════════════════════════════════════
-function searchIndivid() {
-  const q = (document.getElementById('individ-search')||{value:''}).value.toLowerCase().trim();
-  const el = document.getElementById('individ-results');
-  if (!el) return;
-  if (!q) { el.innerHTML = ''; return; }
-
-  const g2 = griiData.filter(d => (d.nombre||'').toLowerCase().includes(q) || (d.noemp||'').toLowerCase().includes(q));
-  const g3 = griiiData.filter(d => (d.area||'').toLowerCase().includes(q));
-  const at = atsData.filter(d => (d.nombre||'').toLowerCase().includes(q) || (d.noemp||'').toLowerCase().includes(q));
-
-  if (!g2.length && !g3.length && !at.length) {
-    el.innerHTML = '<div class="card"><div class="card-body"><p style="color:var(--text3)">No se encontraron resultados para "<b>' + q + '</b>"</p></div></div>';
-    return;
-  }
-
-  let html = '';
-  if (g2.length) {
-    html += `<div class="card"><div class="card-head"><div class="card-title">📋 Guía II — ${g2.length} evaluación(es)</div></div>
-    <div class="card-body" style="padding:0"><div class="tbl-wrap"><table>
-    <thead><tr><th>Nombre</th><th>No. Emp</th><th>Área</th><th>Fecha</th><th>Puntaje</th><th>Nivel</th><th>Ver</th></tr></thead>
-    <tbody>${g2.map(d => `<tr><td><b>${d.nombre||'—'}</b></td><td>${d.noemp||'—'}</td><td>${d.area||'—'}</td><td>${d.fecha||'—'}</td><td>${d.score||0}</td><td>${riskBadge(d.nivel)}</td><td><button class="btn btn-outline btn-sm" onclick="showG2Detail(${griiData.indexOf(d)})">Ver</button></td></tr>`).join('')}
-    </tbody></table></div></div></div>`;
-  }
-  if (at.length) {
-    html += `<div class="card"><div class="card-head"><div class="card-title">⚠️ ATS — ${at.length} reporte(s)</div></div>
-    <div class="card-body" style="padding:0"><div class="tbl-wrap"><table>
-    <thead><tr><th>Nombre</th><th>Área</th><th>Fecha</th><th>Tipo Evento</th><th>Atención</th></tr></thead>
-    <tbody>${at.map(d => `<tr><td><b>${d.nombre||'—'}</b></td><td>${d.area||'—'}</td><td>${d.fecha||'—'}</td><td>${ATS_TIPO_LBL[d.tipoEvento]||'—'}</td><td>${ATS_ATEN_LBL[d.atencion]||'—'}</td></tr>`).join('')}
-    </tbody></table></div></div></div>`;
-  }
-  el.innerHTML = html;
+function saveMedida() {
+  const idx = parseInt((document.getElementById('med-edit-idx')||{value:'-1'}).value);
+  const d = {
+    desc: (document.getElementById('med-desc')||{value:''}).value.trim(),
+    risk: (document.getElementById('med-risk')||{value:''}).value,
+    resp: (document.getElementById('med-resp')||{value:''}).value.trim(),
+    area: (document.getElementById('med-area')||{value:''}).value.trim(),
+    status: (document.getElementById('med-status')||{value:''}).value,
+    inicio: (document.getElementById('med-inicio')||{value:''}).value,
+    limite: (document.getElementById('med-limite')||{value:''}).value,
+    avance: (document.getElementById('med-avance')||{value:'0'}).value,
+    obs: (document.getElementById('med-obs')||{value:''}).value.trim(),
+    ts: new Date().toISOString()
+  };
+  if (!d.desc) { toast('La descripción es requerida', 'error'); return; }
+  if (idx >= 0) medidasData[idx] = d; else medidasData.push(d);
+  save();
+  closeModal('modal-medida');
+  renderMedidas();
+  updateBadges();
+  toast('Medida guardada ✓', 'success');
 }
 
-// ════════════════════════════════════════
-//  EXPORT
-// ════════════════════════════════════════
-// ════════════════════════════════════════
-//  HEAD COUNT FUNCTIONS
-// ════════════════════════════════════════
+function editMedida(idx) {
+  const d = medidasData[idx];
+  if (!d) return;
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v||''; };
+  setVal('med-desc', d.desc);
+  setVal('med-risk', d.risk);
+  setVal('med-resp', d.resp);
+  setVal('med-area', d.area);
+  setVal('med-status', d.status);
+  setVal('med-inicio', d.inicio);
+  setVal('med-limite', d.limite);
+  setVal('med-avance', d.avance||0);
+  setVal('med-obs', d.obs);
+  const av = document.getElementById('med-avance-val');
+  if (av) av.textContent = (d.avance||0) + '%';
+  const ei = document.getElementById('med-edit-idx');
+  if (ei) ei.value = idx;
+  openModal('modal-medida');
+}
+
+function deleteMedida(idx) {
+  if (!confirm('¿Eliminar esta medida?')) return;
+  medidasData.splice(idx, 1);
+  save(); renderMedidas(); updateBadges();
+  toast('Medida eliminada', 'warn');
+}
+
+// ═══════════════════════════════════════════════
+//  HEAD COUNT
+// ═══════════════════════════════════════════════
 function renderHC() {
-  const search = (document.getElementById('hc-search')||{value:''}).value.toLowerCase();
   const tbody = document.getElementById('hc-tbody');
-  const cnt = document.getElementById('hc-count');
+  const empty = document.getElementById('hc-empty');
   if (!tbody) return;
-  if (cnt) cnt.textContent = headcountData.length;
 
-  let data = headcountData.filter(d =>
-    !search ||
-    (d.nombre||'').toLowerCase().includes(search) ||
-    (d.no||'').toLowerCase().includes(search) ||
-    (d.dept||'').toLowerCase().includes(search)
-  );
+  const search = (document.getElementById('hc-search')||{value:''}).value.toLowerCase();
+  const dept = (document.getElementById('hc-dept')||{value:''}).value;
+  const turno = (document.getElementById('hc-turno')||{value:''}).value;
+  const genero = (document.getElementById('hc-genero')||{value:''}).value;
 
-  if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:32px">Sin empleados. Importa un archivo Excel con el catálogo.</td></tr>';
+  let data = headcountData.filter(d => {
+    const ms = !search || (d.nombre||'').toLowerCase().includes(search) ||
+      (d.no||'').toLowerCase().includes(search) || (d.puesto||'').toLowerCase().includes(search);
+    const md = !dept || d.dept === dept;
+    const mt = !turno || d.turno === turno;
+    const mg = !genero || d.genero === genero;
+    return ms && md && mt && mg;
+  });
+
+  // Update dept filter
+  const deptEl = document.getElementById('hc-dept');
+  if (deptEl && deptEl.options.length <= 1) {
+    const depts = [...new Set(headcountData.map(d=>d.dept).filter(Boolean))].sort();
+    depts.forEach(dp => { const o = new Option(dp,dp); deptEl.add(o); });
+  }
+
+  if (data.length === 0) {
+    tbody.innerHTML = '';
+    if (empty) empty.style.display = 'block';
     return;
   }
-  tbody.innerHTML = data.map((d,i) => `
+  if (empty) empty.style.display = 'none';
+
+  tbody.innerHTML = data.map(d => `
     <tr>
       <td><b>${d.no||'—'}</b></td>
       <td>${d.nombre||'—'}</td>
@@ -1372,176 +2128,359 @@ function renderHC() {
       <td>${d.dept||'—'}</td>
       <td>${d.turno||'—'}</td>
       <td>${d.planta||'—'}</td>
-      <td>${d.genero||'—'}</td>
+      <td>${d.genero === 'F' ? '👩 F' : d.genero === 'M' ? '👨 M' : d.genero||'—'}</td>
       <td>${d.ingreso||'—'}</td>
-      <td><button class="btn-ghost btn-sm" onclick="deleteHC(${headcountData.indexOf(d)})">🗑️</button></td>
+      <td>
+        <div class="btn-group">
+          <button class="btn btn-outline btn-sm" onclick="editEmp(${headcountData.indexOf(d)})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteEmp(${headcountData.indexOf(d)})">🗑️</button>
+        </div>
+      </td>
     </tr>`).join('');
 }
 
-function deleteHC(idx) {
-  if (!confirm('¿Eliminar empleado?')) return;
-  headcountData.splice(idx, 1);
-  saveCache();
+function saveEmp() {
+  const idx = parseInt((document.getElementById('emp-edit-idx')||{value:'-1'}).value);
+  const d = {
+    no: (document.getElementById('emp-no')||{value:''}).value.trim(),
+    nombre: (document.getElementById('emp-nombre')||{value:''}).value.trim(),
+    puesto: (document.getElementById('emp-puesto')||{value:''}).value.trim(),
+    dept: (document.getElementById('emp-dept')||{value:''}).value.trim(),
+    turno: (document.getElementById('emp-turno')||{value:''}).value,
+    planta: (document.getElementById('emp-planta')||{value:''}).value.trim(),
+    genero: (document.getElementById('emp-genero')||{value:''}).value,
+    ingreso: (document.getElementById('emp-ingreso')||{value:''}).value,
+  };
+  if (!d.no || !d.nombre) { toast('No. Empleado y Nombre son requeridos', 'error'); return; }
+  if (idx >= 0) headcountData[idx] = d; else headcountData.push(d);
+  save();
+  closeModal('modal-emp');
+  // Reset dept filter
+  const deptEl = document.getElementById('hc-dept');
+  if (deptEl) { while(deptEl.options.length > 1) deptEl.remove(1); }
   renderHC();
   updateBadges();
+  toast('Empleado guardado ✓', 'success');
 }
 
-function importHC(event) {
+function editEmp(idx) {
+  const d = headcountData[idx];
+  if (!d) return;
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v||''; };
+  setVal('emp-no', d.no);
+  setVal('emp-nombre', d.nombre);
+  setVal('emp-puesto', d.puesto);
+  setVal('emp-dept', d.dept);
+  setVal('emp-turno', d.turno);
+  setVal('emp-planta', d.planta);
+  setVal('emp-genero', d.genero);
+  setVal('emp-ingreso', d.ingreso);
+  const ei = document.getElementById('emp-edit-idx');
+  if (ei) ei.value = idx;
+  openModal('modal-emp');
+}
+
+function deleteEmp(idx) {
+  if (!confirm('¿Eliminar empleado?')) return;
+  headcountData.splice(idx, 1);
+  const deptEl = document.getElementById('hc-dept');
+  if (deptEl) { while(deptEl.options.length > 1) deptEl.remove(1); }
+  save(); renderHC(); updateBadges();
+  toast('Empleado eliminado', 'warn');
+}
+
+function triggerExcelImport() { const el = document.getElementById('excel-import'); if (el) el.click(); }
+
+function importExcel(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
-      const wb = XLSX.read(e.target.result, { type:'binary' });
+      const wb = XLSX.read(e.target.result, { type: 'binary' });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { defval:'' });
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
       let added = 0;
       rows.forEach(r => {
-        const no = String(r['No. Empleado']||r['NoEmpleado']||r['no']||r['NO']||r['Num']||'').trim();
-        const nombre = String(r['Nombre']||r['NOMBRE']||r['nombre']||'').trim();
+        const no = String(r['No. Empleado'] || r['NoEmpleado'] || r['no'] || r['NO'] || '').trim();
+        const nombre = String(r['Nombre'] || r['NOMBRE'] || r['nombre'] || '').trim();
         if (!no && !nombre) return;
-        headcountData.push({
-          no:      no,
-          nombre:  nombre,
-          puesto:  String(r['Puesto']||r['PUESTO']||r['puesto']||'').trim(),
-          dept:    String(r['Departamento']||r['DEPARTAMENTO']||r['Dept']||r['dept']||'').trim(),
-          turno:   String(r['Turno']||r['TURNO']||r['turno']||'').trim()||'Matutino',
-          planta:  String(r['Planta']||r['PLANTA']||r['planta']||'').trim(),
-          genero:  String(r['Género']||r['Genero']||r['GENERO']||r['Sexo']||r['genero']||'').trim().toUpperCase().substring(0,1),
-          ingreso: String(r['Fecha Ingreso']||r['FechaIngreso']||r['ingreso']||r['Ingreso']||'').trim(),
-        });
+        const emp = {
+          no: no || '',
+          nombre: nombre || '',
+          puesto: String(r['Puesto'] || r['PUESTO'] || r['puesto'] || '').trim(),
+          dept: String(r['Departamento'] || r['DEPARTAMENTO'] || r['Dept'] || '').trim(),
+          turno: String(r['Turno'] || r['TURNO'] || '').trim() || 'Matutino',
+          planta: String(r['Planta'] || r['PLANTA'] || '').trim(),
+          genero: String(r['Género'] || r['Genero'] || r['GENERO'] || r['Sexo'] || '').trim().toUpperCase().substring(0,1) || '',
+          ingreso: String(r['Fecha Ingreso'] || r['FechaIngreso'] || r['ingreso'] || '').trim()
+        };
+        headcountData.push(emp);
         added++;
       });
-      saveCache();
+      save();
+      const deptEl = document.getElementById('hc-dept');
+      if (deptEl) { while(deptEl.options.length > 1) deptEl.remove(1); }
       renderHC();
       updateBadges();
-      toast(`${added} empleados importados ✓`, 'ok');
-      const ss = document.getElementById('hc-sync-status');
-      if (ss) ss.textContent = '— Pendiente de publicar en GAS';
+      toast(`${added} empleados importados ✓`, 'success');
     } catch(err) {
-      toast('Error al leer Excel: ' + err.message, 'err');
+      toast('Error al leer el archivo Excel: ' + err.message, 'error');
     }
   };
   reader.readAsBinaryString(file);
   event.target.value = '';
 }
 
-async function pushHCtoGAS() {
-  if (!GAS_URL || GAS_URL === 'TU_URL_AQUI') { toast('Configura la URL del GAS primero', 'warn'); return; }
-  if (!headcountData.length) { toast('No hay empleados para publicar', 'warn'); return; }
-  const btn = document.querySelector('[onclick="pushHCtoGAS()"]');
-  if (btn) { btn.disabled = true; btn.textContent = '⟳ Publicando…'; }
-  try {
-    const ctrl = new AbortController();
-    const tid = setTimeout(()=>ctrl.abort(), NET_TIMEOUT);
-    await fetch(GAS_URL, {
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'saveHeadcount', rows: headcountData }),
-      signal: ctrl.signal
-    });
-    clearTimeout(tid);
-    const ss = document.getElementById('hc-sync-status');
-    if (ss) ss.textContent = '✓ Publicado en GAS · ' + new Date().toLocaleTimeString('es-MX');
-    toast(`${headcountData.length} empleados publicados en GAS ✓`, 'ok');
-  } catch(err) {
-    toast('Error al publicar: ' + err.message, 'err');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '☁️ Publicar en GAS'; }
-  }
+function handleDrop(event) {
+  event.preventDefault();
+  const zone = document.getElementById('hc-upload-zone');
+  if (zone) zone.classList.remove('dragover');
+  const file = event.dataTransfer.files[0];
+  if (!file) return;
+  const fakeEvt = { target: { files: [file], value: '' } };
+  importExcel(fakeEvt);
 }
 
-function exportExcel(which) {
+// ═══════════════════════════════════════════════
+//  REGISTROS
+// ═══════════════════════════════════════════════
+function renderRegistros() {
+  const tbody = document.getElementById('reg-tbody');
+  if (!tbody) return;
+  const search = (document.getElementById('reg-search')||{value:''}).value.toLowerCase();
+  const tipo = (document.getElementById('reg-tipo')||{value:''}).value;
+  const year = (document.getElementById('reg-year')||{value:''}).value;
+  const month = (document.getElementById('reg-month')||{value:''}).value;
+
+  // Populate months
+  const mEl = document.getElementById('reg-month');
+  if (mEl && mEl.options.length <= 1) {
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+      'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    meses.forEach((m,i) => { const o = new Option(m, String(i+1).padStart(2,'0')); mEl.add(o); });
+  }
+
+  const all = [];
+  griData.forEach((d,i) => all.push({ fecha: d.fecha, modulo:'gri', label:'Guía I — ATS',
+    quien: d.nombre, tipo: d.tipo, nivel: d.seguimiento, idx: i }));
+  griiData.forEach((d,i) => all.push({ fecha: d.fecha, modulo:'grii', label:'Guía II — Riesgo',
+    quien: d.nombre, tipo:'Cuestionario', nivel: d.nivel, idx: i }));
+  griiiData.forEach((d,i) => all.push({ fecha: d.fecha, modulo:'griii', label:'Guía III — Entorno',
+    quien: d.area, tipo:'Cuestionario', nivel: d.nivel, idx: i }));
+  medidasData.forEach((d,i) => all.push({ fecha: d.inicio, modulo:'medidas', label:'Medida de Control',
+    quien: d.resp, tipo: d.risk, nivel: d.status, idx: i }));
+
+  all.sort((a,b) => (b.fecha||'') > (a.fecha||'') ? 1 : -1);
+
+  let data = all.filter(r => {
+    const ms = !search || (r.quien||'').toLowerCase().includes(search) || (r.label||'').toLowerCase().includes(search);
+    const mt = !tipo || r.modulo === tipo;
+    const my = !year || (r.fecha||'').startsWith(year);
+    const mm = !month || (r.fecha||'').substring(5,7) === month;
+    return ms && mt && my && mm;
+  });
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text3);text-align:center;padding:24px">Sin registros</td></tr>';
+    return;
+  }
+
+  const modColors = { gri:'badge-pending', grii:'badge-active', griii:'badge-null', medidas:'badge-low' };
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td>${r.fecha||'—'}</td>
+      <td><span class="badge ${modColors[r.modulo]||''}">${r.label}</span></td>
+      <td>${r.quien||'—'}</td>
+      <td>${r.tipo||'—'}</td>
+      <td>${r.modulo === 'grii' || r.modulo === 'griii' ? riskBadge(r.nivel) : segBadge(r.nivel)}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="showPage('${r.modulo}')">Ver módulo</button></td>
+    </tr>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT EXCEL
+// ═══════════════════════════════════════════════
+function exportExcel(module) {
   try {
-    const wb = XLSX.utils.book_new();
-    if (which === 'hc') {
-      if (!headcountData.length) { toast('Sin datos de Head Count', 'warn'); return; }
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(headcountData), 'HeadCount');
-    } else if (!which || which === 'all') {
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(griiData), 'Guia_II');
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(griiiData), 'Guia_III');
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(atsData), 'ATS');
-    } else if (which === 'grii') {
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(griiData), 'Guia_II');
-    } else if (which === 'griii') {
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(griiiData), 'Guia_III');
-    } else if (which === 'ats') {
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(atsData), 'ATS');
+    let data = [], filename = 'NOM035';
+    if (module === 'gri') { data = griData; filename = 'GRI_ATS'; }
+    else if (module === 'grii') { data = griiData; filename = 'GRII_RiesgoPsicosocial'; }
+    else if (module === 'griii') { data = griiiData; filename = 'GRIII_EntornoOrg'; }
+    else if (module === 'medidas') { data = medidasData; filename = 'MedidasControl'; }
+    else if (module === 'hc') { data = headcountData; filename = 'HeadCount'; }
+    else if (module === 'registros') {
+      const all = [];
+      griData.forEach(d => all.push({...d, modulo:'GRI'}));
+      griiData.forEach(d => all.push({...d, modulo:'GRII'}));
+      griiiData.forEach(d => all.push({...d, modulo:'GRIII'}));
+      medidasData.forEach(d => all.push({...d, modulo:'Medidas'}));
+      data = all; filename = 'Registros_Completos';
     }
-    XLSX.writeFile(wb, `Teleflex_NOM035_${new Date().toISOString().slice(0,10)}.xlsx`);
-    toast('Excel exportado ✓', 'ok');
-  } catch(e) { toast('Error al exportar: ' + e.message, 'err'); }
-}
-
-// ════════════════════════════════════════
-//  CONFIG MODAL
-// ════════════════════════════════════════
-function saveConfig() {
-  const url = (document.getElementById('cfg-gas-url')||{value:''}).value.trim();
-  const interval = (document.getElementById('cfg-interval')||{value:'0'}).value;
-  if (!url) { toast('Ingresa la URL del GAS', 'warn'); return; }
-  GAS_URL = url;
-  syncInterval = parseInt(interval);
-  localStorage.setItem('nom035_gas_url', GAS_URL);
-  localStorage.setItem('nom035_sync_interval', syncInterval.toString());
-  setupAutoSync();
-  closeModal('modal-cfg');
-  toast('Configuración guardada. Sincronizando…', 'ok');
-  syncFromGAS();
-}
-
-// ════════════════════════════════════════
-//  MODALES
-// ════════════════════════════════════════
-function openModal(id) { const el = document.getElementById(id); if(el) el.classList.add('open'); }
-function closeModal(id) { const el = document.getElementById(id); if(el) el.classList.remove('open'); }
-function closeModalOuter(e, id) { if(e.target===e.currentTarget) closeModal(id); }
-
-// ════════════════════════════════════════
-//  TOAST
-// ════════════════════════════════════════
-function toast(msg, type) {
-  const c = document.getElementById('toast-ctr'); if(!c) return;
-  const icons = { ok:'✅', err:'❌', warn:'⚠️', info:'ℹ️' };
-  const t = document.createElement('div');
-  t.className = 'toast ' + (type||'');
-  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
-  c.appendChild(t);
-  setTimeout(() => { if(t.parentNode) t.parentNode.removeChild(t); }, 3500);
-}
-
-// ════════════════════════════════════════
-//  RISK BADGE
-// ════════════════════════════════════════
-function riskBadge(nivel) {
-  const map = { nulo:'b-null', bajo:'b-low', medio:'b-med', alto:'b-high', muy_alto:'b-vhigh' };
-  const lbl = { nulo:'Nulo', bajo:'Bajo', medio:'Medio', alto:'Alto', muy_alto:'Muy Alto' };
-  return `<span class="badge ${map[nivel]||'b-null'}">${lbl[nivel]||nivel||'—'}</span>`;
-}
-
-// ════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════
-(function init() {
-  loadCache();
-  // Pre-fill config modal
-  const cfgEl = document.getElementById('cfg-gas-url');
-  if (cfgEl && GAS_URL !== 'TU_URL_AQUI') cfgEl.value = GAS_URL;
-  const cfgInt = document.getElementById('cfg-interval');
-  if (cfgInt) cfgInt.value = syncInterval.toString();
-
-  if (lastSync) {
-    const ls = document.getElementById('last-sync-lbl'); if(ls) ls.textContent = 'Sync: ' + lastSync;
+    if (data.length === 0) { toast('No hay datos para exportar', 'warn'); return; }
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, filename.substring(0,31));
+    XLSX.writeFile(wb, `Teleflex_${filename}_${today()}.xlsx`);
+    toast('Excel exportado ✓', 'success');
+  } catch(e) {
+    toast('Error al exportar: ' + e.message, 'error');
   }
-  updateBadges();
-  renderDash();
-  setupAutoSync();
-  if (GAS_URL && GAS_URL !== 'TU_URL_AQUI') syncFromGAS();
-  else toast('Configura la URL del GAS para sincronizar datos', 'warn');
-})();
+}
 
-window.addEventListener('error', e => console.error('Error:', e.message));
-window.addEventListener('unhandledrejection', e => console.warn('Rejected:', e.reason));
+// ═══════════════════════════════════════════════
+//  IMPRESIÓN (iframe modal)
+// ═══════════════════════════════════════════════
+function printPage(page) {
+  currentPrintPage = page;
+  const titles = { dashboard:'Dashboard', gri:'Guía I — ATS', grii:'Guía II — Riesgo',
+    griii:'Guía III — Entorno', politica:'Política', medidas:'Medidas', headcount:'Head Count', registros:'Registros' };
+  const content = buildPrintContent(page);
+  const ifrm = document.getElementById('print-iframe');
+  if (!ifrm) return;
+  const doc = ifrm.contentDocument || ifrm.contentWindow.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>NOM-035 Teleflex — ${titles[page]||page}</title>
+  <style>
+    body{font-family:Arial,sans-serif;font-size:12px;color:#111;margin:20px}
+    h1{font-size:18px;color:#0D2B5A;margin-bottom:4px}
+    h2{font-size:14px;color:#0D2B5A;margin:16px 0 8px}
+    table{width:100%;border-collapse:collapse;margin-bottom:16px}
+    th{background:#0D2B5A;color:#fff;padding:6px 8px;text-align:left;font-size:11px}
+    td{padding:5px 8px;border-bottom:1px solid #ddd;font-size:11px}
+    tr:nth-child(even){background:#f5f7fa}
+    .header{border-bottom:3px solid #0D2B5A;margin-bottom:16px;padding-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start}
+    .footer{margin-top:24px;border-top:1px solid #ccc;padding-top:8px;font-size:10px;color:#666;display:flex;justify-content:space-between}
+    @media print{button{display:none}}
+  </style>
+  </head><body>
+  <div class="header">
+    <div>
+      <h1>NOM-035-STPS-2018 — ${EMPRESA}</h1>
+      <div style="font-size:11px;color:#555">${MEDICO} | Cédula ${CEDULA}</div>
+      <div style="font-size:11px;color:#555">${UBICACION}</div>
+    </div>
+    <div style="text-align:right;font-size:11px;color:#555">
+      <div><b>${titles[page]||page}</b></div>
+      <div>Fecha: ${today()}</div>
+    </div>
+  </div>
+  ${content}
+  <div class="footer">
+    <span>Generado por Sistema NOM-035 Teleflex v${APP_VERSION}</span>
+    <span>${new Date().toLocaleString('es-MX')}</span>
+  </div>
+  </body></html>`);
+  doc.close();
+  openModal('print-modal');
+}
+
+function buildPrintContent(page) {
+  if (page === 'gri') {
+    if (griData.length === 0) return '<p>Sin registros.</p>';
+    return `<h2>Registros de Acontecimentos Traumáticos Severos</h2>
+    <table><thead><tr><th>#</th><th>Empleado</th><th>Fecha</th><th>Tipo</th><th>Seguimiento</th><th>Descripción</th></tr></thead>
+    <tbody>${griData.map((d,i) => `<tr><td>${i+1}</td><td>${d.nombre||''}</td><td>${d.fecha||''}</td><td>${d.tipo||''}</td><td>${d.seguimiento||''}</td><td>${(d.desc||'').substring(0,80)}</td></tr>`).join('')}</tbody></table>`;
+  }
+  if (page === 'grii') {
+    if (griiData.length === 0) return '<p>Sin cuestionarios.</p>';
+    return `<h2>Cuestionarios de Factores de Riesgo Psicosocial</h2>
+    <table><thead><tr><th>#</th><th>Empleado</th><th>Área</th><th>Fecha</th><th>Puntaje</th><th>Nivel</th></tr></thead>
+    <tbody>${griiData.map((d,i) => `<tr><td>${i+1}</td><td>${d.nombre||''}</td><td>${d.area||''}</td><td>${d.fecha||''}</td><td>${d.score||0}</td><td>${riskLabel(d.nivel)}</td></tr>`).join('')}</tbody></table>`;
+  }
+  if (page === 'griii') {
+    if (griiiData.length === 0) return '<p>Sin evaluaciones.</p>';
+    return `<h2>Evaluaciones de Entorno Organizacional</h2>
+    <table><thead><tr><th>#</th><th>Área</th><th>Aplicador</th><th>Fecha</th><th>Puntaje</th><th>Nivel</th></tr></thead>
+    <tbody>${griiiData.map((d,i) => `<tr><td>${i+1}</td><td>${d.area||''}</td><td>${d.aplicador||''}</td><td>${d.fecha||''}</td><td>${d.score||0}</td><td>${riskLabel(d.nivel)}</td></tr>`).join('')}</tbody></table>`;
+  }
+  if (page === 'medidas') {
+    if (medidasData.length === 0) return '<p>Sin medidas.</p>';
+    return `<h2>Plan de Medidas de Control</h2>
+    <table><thead><tr><th>#</th><th>Descripción</th><th>Nivel</th><th>Responsable</th><th>Límite</th><th>Avance</th><th>Estatus</th></tr></thead>
+    <tbody>${medidasData.map((d,i) => `<tr><td>${i+1}</td><td>${(d.desc||'').substring(0,60)}</td><td>${riskLabel(d.risk)}</td><td>${d.resp||''}</td><td>${d.limite||''}</td><td>${d.avance||0}%</td><td>${d.status||''}</td></tr>`).join('')}</tbody></table>`;
+  }
+  if (page === 'headcount') {
+    if (headcountData.length === 0) return '<p>Sin empleados.</p>';
+    return `<h2>Head Count — ${headcountData.length} empleados</h2>
+    <table><thead><tr><th>No.</th><th>Nombre</th><th>Puesto</th><th>Dpto.</th><th>Turno</th><th>Planta</th><th>Género</th><th>Ingreso</th></tr></thead>
+    <tbody>${headcountData.map(d => `<tr><td>${d.no||''}</td><td>${d.nombre||''}</td><td>${d.puesto||''}</td><td>${d.dept||''}</td><td>${d.turno||''}</td><td>${d.planta||''}</td><td>${d.genero||''}</td><td>${d.ingreso||''}</td></tr>`).join('')}</tbody></table>`;
+  }
+  if (page === 'politica') {
+    return `<h2>Política de Prevención de Riesgos Psicosociales</h2>
+    <p><b>Versión:</b> ${politicaData.version||'—'} &nbsp; <b>Fecha:</b> ${politicaData.fecha||'—'}</p>
+    <p><b>Firmante:</b> ${politicaData.firmante||'—'} &nbsp; <b>Cédula:</b> ${politicaData.cedula||'—'}</p>
+    <div style="border:1px solid #ccc;padding:12px;margin:12px 0;border-radius:4px">${(politicaData.texto||'Sin texto').replace(/\n/g,'<br>')}</div>
+    ${(politicaData.compromisos||[]).length > 0 ? `<h2>Compromisos</h2><ul>${politicaData.compromisos.map(c=>`<li>${c.texto||''} — ${c.resp||''} ${c.cumplido?'✓':''}</li>`).join('')}</ul>` : ''}`;
+  }
+  if (page === 'dashboard') {
+    return `<h2>Resumen Ejecutivo NOM-035</h2>
+    <table><thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
+    <tbody>
+    <tr><td>Empleados registrados</td><td>${headcountData.length}</td></tr>
+    <tr><td>Eventos ATS registrados</td><td>${griData.length}</td></tr>
+    <tr><td>Cuestionarios Guía II</td><td>${griiData.length}</td></tr>
+    <tr><td>Evaluaciones Guía III</td><td>${griiiData.length}</td></tr>
+    <tr><td>Riesgo Alto / Muy Alto</td><td>${griiData.filter(d=>d.nivel==='alto'||d.nivel==='muy_alto').length}</td></tr>
+    <tr><td>Medidas activas</td><td>${medidasData.filter(m=>m.status!=='completado'&&m.status!=='cancelado').length}</td></tr>
+    </tbody></table>`;
+  }
+  return '<p>Vista previa no disponible para este módulo.</p>';
+}
+
+function triggerPrint() {
+  const ifrm = document.getElementById('print-iframe');
+  if (ifrm && ifrm.contentWindow) {
+    try { ifrm.contentWindow.print(); } catch(e) { toast('Use Ctrl+P para imprimir', 'info'); }
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  UTILIDADES
+// ═══════════════════════════════════════════════
+function riskBadge(nivel) {
+  const map = { nulo:'badge-null', bajo:'badge-low', medio:'badge-med', alto:'badge-high', muy_alto:'badge-vhigh' };
+  const lbl = { nulo:'Nulo', bajo:'Bajo', medio:'Medio', alto:'Alto', muy_alto:'Muy Alto' };
+  return `<span class="badge ${map[nivel]||'badge-null'}">${lbl[nivel]||nivel||'—'}</span>`;
+}
+
+function riskLabel(nivel) {
+  const lbl = { nulo:'Nulo', bajo:'Bajo', medio:'Medio', alto:'Alto', muy_alto:'Muy Alto' };
+  return lbl[nivel] || nivel || '—';
+}
+
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+
+// ═══════════════════════════════════════════════
+//  ERROR HANDLER GLOBAL
+// ═══════════════════════════════════════════════
+window.addEventListener('error', function(e) {
+  console.error('Error global:', e.message, e.filename, e.lineno);
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+  console.warn('Promise rechazada:', e.reason);
+});
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+(function init() {
+  load();
+  updateBadges();
+  renderDashboard();
+  checkConnection();
+  setInterval(checkConnection, 30000);
+  // Set today's date in date fields
+  const todayStr = today();
+  ['gri-fecha','q2-fecha','q3-fecha','med-inicio','pol-fecha'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = todayStr;
+  });
+})();
 </script>
 </body>
 </html>

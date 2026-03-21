@@ -1004,9 +1004,12 @@ async function checkConnection() {
   if (!dot) return;
   if (!GAS || GAS === 'TU_URL_AQUI') { dot.classList.remove('online'); return; }
   try {
-    const url = GAS + '?action=ping';
-    const r = await fetch(url);
-    const d = await r.json();
+    const r = await fetch(GAS + '?action=ping', {
+      method: 'GET',
+      redirect: 'follow'
+    });
+    const txt = await r.text();
+    const d = JSON.parse(txt);
     if (d && d.ok) dot.classList.add('online');
     else dot.classList.remove('online');
   } catch(e) {

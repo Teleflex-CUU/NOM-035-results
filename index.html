@@ -1004,28 +1004,56 @@ async function checkConnection() {
   if (!dot) return;
   if (!GAS || GAS === 'TU_URL_AQUI') { dot.classList.remove('online'); return; }
   try {
-    const r = await fetch(GAS + '?action=ping', {
-      method: 'GET',
-      redirect: 'follow'
-    });
-    const txt = await r.text();
-    const d = JSON.parse(txt);
-    if (d && d.ok) dot.classList.add('online');
-    else dot.classList.remove('online');
+    const r = await fetch(GAS + '?action=ping', { method:'GET', redirect:'follow' });
+    const d = JSON.parse(await r.text());
+    if (d && d.ok) {
+      dot.classList.add('online');
+      // Auto-sync on first successful connection
+      await syncAll();
+    } else {
+      dot.classList.remove('online');
+    }
   } catch(e) {
     dot.classList.remove('online');
   }
 }
 
 async function syncAll() {
-  if (GAS === 'TU_URL_AQUI') { toast('Configure la URL del GAS primero', 'warn'); return; }
-  toast('Sincronizando…', 'info');
+  if (!GAS || GAS === 'TU_URL_AQUI') { toast('Configure la URL del GAS primero', 'warn'); return; }
+  const dot = document.getElementById('conn-dot');
+  toast('Sincronizando con Google Sheets…', 'info');
   try {
-    await gPost({ action: 'sync', gri: griData, grii: griiData, griii: griiiData,
-      medidas: medidasData, hc: headcountData, politica: politicaData });
-    toast('Sincronización completada ✓', 'success');
+    const url = GAS + '?action=getAll';
+    const r = await fetch(url, { method:'GET', redirect:'follow' });
+    const txt = await r.text();
+    const data = JSON.parse(txt);
+    if (data && data.ok) {
+      // Actualizar datos locales con lo que viene del GAS
+      if (data.grii  && Array.isArray(data.grii))  griiData  = data.grii;
+      if (data.griii && Array.isArray(data.griii)) griiiData = data.griii;
+      if (data.ats   && Array.isArray(data.ats))   griData   = data.ats;
+      // Guardar en localStorage como caché
+      try {
+        localStorage.setItem('nom035_grii',  JSON.stringify(griiData));
+        localStorage.setItem('nom035_griii', JSON.stringify(griiiData));
+        localStorage.setItem('nom035_gri',   JSON.stringify(griData));
+        localStorage.setItem('nom035_last_sync', new Date().toLocaleTimeString('es-MX'));
+      } catch(e) {}
+      if (dot) dot.classList.add('online');
+      updateBadges();
+      // Re-renderizar la pantalla activa
+      const activePage = document.querySelector('.page.active');
+      if (activePage) {
+        const pageId = activePage.id.replace('page-','');
+        showPage(pageId);
+      }
+      toast('✓ ' + (griiData.length + griiiData.length + griData.length) + ' registros actualizados', 'success');
+    } else {
+      toast('El GAS respondió pero sin datos', 'warn');
+    }
   } catch(e) {
-    toast('Error de sincronización: ' + e.message, 'error');
+    if (dot) dot.classList.remove('online');
+    toast('Error de conexión: ' + e.message, 'error');
   }
 }
 
@@ -2479,10 +2507,19 @@ window.addEventListener('unhandledrejection', function(e) {
 // ═══════════════════════════════════════════════
 (function init() {
   load();
+  // Load cached GAS data if available
+  try {
+    const cGrii  = localStorage.getItem('nom035_grii');
+    const cGriii = localStorage.getItem('nom035_griii');
+    const cGri   = localStorage.getItem('nom035_gri');
+    if (cGrii)  { const d = JSON.parse(cGrii);  if (d.length) griiData  = d; }
+    if (cGriii) { const d = JSON.parse(cGriii); if (d.length) griiiData = d; }
+    if (cGri)   { const d = JSON.parse(cGri);   if (d.length) griData   = d; }
+  } catch(e) {}
   updateBadges();
   renderDashboard();
   checkConnection();
-  setInterval(checkConnection, 30000);
+  setInterval(checkConnection, 60000);
   // Set today's date in date fields
   const todayStr = today();
   ['gri-fecha','q2-fecha','q3-fecha','med-inicio','pol-fecha'].forEach(id => {

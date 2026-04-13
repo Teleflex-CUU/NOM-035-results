@@ -545,10 +545,19 @@ const NET_TIMEOUT = 12000;
 
 // Mapeo de planta → nombre edificio
 const EDIFICIO_MAP = {
-  '13000':'Edificio 1 (13000)', '13200':'Edificio 2 (13200)',
-  '13500':'Edificio 3 (13500)', '13700':'Edificio 4 (13700)',
-  'Planta 1':'Edificio 1 (13000)', 'Planta 2':'Edificio 2 (13200)',
-  'Planta 3':'Edificio 3 (13500)', 'Planta 4':'Edificio 4 (13700)',
+  // Nombres nuevos del HC
+  'américas (13000)':'Américas (13000)', 'barrancas (13200)':'Barrancas (13200)',
+  'cantera (13500)':'Cantera (13500)',   'juventud (13700)':'Juventud (13700)',
+  // Por si llegan en mayúsculas directas
+  'Américas (13000)':'Américas (13000)', 'Barrancas (13200)':'Barrancas (13200)',
+  'Cantera (13500)':'Cantera (13500)',   'Juventud (13700)':'Juventud (13700)',
+  // Códigos legacy
+  '13000':'Américas (13000)', '13200':'Barrancas (13200)',
+  '13500':'Cantera (13500)',  '13700':'Juventud (13700)',
+  'Planta 1':'Américas (13000)', 'Planta 2':'Barrancas (13200)',
+  'Planta 3':'Cantera (13500)',  'Planta 4':'Juventud (13700)',
+  'americas':'Américas (13000)', 'barrancas':'Barrancas (13200)',
+  'cantera':'Cantera (13500)',   'juventud':'Juventud (13700)',
 };
 
 // Dominios Guía II
@@ -584,11 +593,12 @@ let chDistG2=null, chDistG3=null, chEdif=null, chRadar=null;
 //  HELPERS
 // ════════════════════════════════════
 function edificioOf(d) {
-  const p = d.planta || d.plant || '';
-  return EDIFICIO_MAP[p] || p || '—';
+  const p = (d.planta || d.plant || '').trim();
+  // Try exact match first, then lowercase
+  return EDIFICIO_MAP[p] || EDIFICIO_MAP[p.toLowerCase()] || p || '—';
 }
 
-function deptOf(d) { return d.dept || d.area || d.categoria || '—'; }
+function deptOf(d) { return d.dept || d.departamento || d.area || d.categoria || '—'; }
 function subdeptOf(d) { return d.subdept || d.subdepartamento || '—'; }
 
 function nivelG2(score) {

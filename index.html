@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Lora:wght@400;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.18.5/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{
   --navy:#0D2B5A;--navy2:#1a3f7a;--navy3:#091e42;
@@ -224,6 +226,16 @@ tbody tr:last-child{border-bottom:none}
 .empty{text-align:center;padding:40px;color:var(--text3)}
 .empty svg{opacity:.25;margin-bottom:10px}
 
+/* ── PDF OVERLAY ── */
+#pdf-overlay{position:fixed;inset:0;background:rgba(9,30,66,.82);z-index:9999;
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#pdf-overlay.show{display:flex}
+.pdf-spinner{width:52px;height:52px;border:4px solid rgba(255,255,255,.2);
+  border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pdf-msg{color:#fff;font-size:15px;font-weight:600}
+.pdf-sub{color:rgba(255,255,255,.6);font-size:13px}
+
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
   #sidebar{display:none}#content{margin-left:0}#topbar{left:0}
@@ -276,6 +288,9 @@ tbody tr:last-child{border-bottom:none}
       <span class="sb-badge alert" id="b-ats">0</span>
     </button>
     <div class="sb-sec">Exportar</div>
+    <button class="sb-btn" onclick="generarPDF()" id="btn-pdf">
+      <span class="sb-icon">📄</span> Resumen Ejecutivo PDF
+    </button>
     <button class="sb-btn" onclick="exportExcel()">
       <span class="sb-icon">📥</span> Excel completo
     </button>
@@ -294,7 +309,8 @@ tbody tr:last-child{border-bottom:none}
   <div class="tb-right">
     <span class="last-sync" id="last-sync"></span>
     <button id="sync-btn" onclick="syncData()">⟳ Sincronizar</button>
-    <button class="btn btn-navy btn-sm" onclick="exportExcel()">📥 Excel</button>
+    <button class="btn btn-navy btn-sm" onclick="generarPDF()" id="btn-pdf-top">📄 PDF Ejecutivo</button>
+    <button class="btn btn-outline btn-sm" onclick="exportExcel()">📥 Excel</button>
   </div>
 </div>
 
@@ -533,6 +549,11 @@ tbody tr:last-child{border-bottom:none}
 </div>
 
 <div id="toast-ctr"></div>
+<div id="pdf-overlay">
+  <div class="pdf-spinner"></div>
+  <div class="pdf-msg" id="pdf-msg">Generando Resumen Ejecutivo…</div>
+  <div class="pdf-sub" id="pdf-sub">Esto puede tomar unos segundos</div>
+</div>
 
 <script>
 'use strict';
@@ -1267,6 +1288,596 @@ function toast(msg, type) {
 
 window.addEventListener('error',e=>console.error('Error:',e.message));
 window.addEventListener('unhandledrejection',e=>console.warn('Rejected:',e.reason));
+
+// ════════════════════════════════════════════════════════
+//  GENERADOR DE RESUMEN EJECUTIVO PDF
+// ════════════════════════════════════════════════════════
+async function generarPDF() {
+  const overlay = document.getElementById('pdf-overlay');
+  const msgEl   = document.getElementById('pdf-msg');
+  const subEl   = document.getElementById('pdf-sub');
+  if (overlay) overlay.classList.add('show');
+
+  // Pequeño delay para que se muestre el overlay
+  await new Promise(r => setTimeout(r, 100));
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'letter' });
+    const PW = 215.9; // letter width mm
+    const PH = 279.4; // letter height mm
+    const M  = 14;    // margin
+    const CW = PW - M*2; // content width
+
+    // ── COLORES ──
+    const NAVY    = [13, 43, 90];
+    const NAVY2   = [26, 63, 122];
+    const TEAL    = [0, 121, 107];
+    const WHITE   = [255,255,255];
+    const GRAY    = [240,244,250];
+    const GRAY2   = [209,218,232];
+    const TEXT    = [15, 23, 42];
+    const TEXT2   = [100,116,139];
+
+    const NOM_COLORS = {
+      nulo:    [46,125,50],
+      bajo:    [249,168,37],
+      medio:   [239,108,0],
+      alto:    [198,40,40],
+      muy_alto:[106,27,154]
+    };
+    const NOM_BG = {
+      nulo:    [232,245,233],
+      bajo:    [255,248,225],
+      medio:   [255,243,224],
+      alto:    [255,235,238],
+      muy_alto:[243,229,245]
+    };
+    const NOM_LABELS_ES = {
+      nulo:'Nulo', bajo:'Bajo', medio:'Medio', alto:'Alto', muy_alto:'Muy Alto'
+    };
+
+    // ── UTILIDADES ──
+    function setFont(size, style, color) {
+      doc.setFontSize(size);
+      doc.setFont('helvetica', style || 'normal');
+      doc.setTextColor(...(color || TEXT));
+    }
+
+    function fillRect(x, y, w, h, color) {
+      doc.setFillColor(...color);
+      doc.rect(x, y, w, h, 'F');
+    }
+
+    function strokeRect(x, y, w, h, color, lw) {
+      doc.setDrawColor(...(color || GRAY2));
+      doc.setLineWidth(lw || 0.3);
+      doc.rect(x, y, w, h, 'S');
+    }
+
+    function riskCell(x, y, w, h, nivel) {
+      const bg  = NOM_BG[nivel]    || [240,240,240];
+      const col = NOM_COLORS[nivel] || [100,100,100];
+      fillRect(x, y, w, h, bg);
+      strokeRect(x, y, w, h, col, 0.3);
+      doc.setFillColor(...col);
+      doc.circle(x + 3.5, y + h/2, 1.2, 'F');
+      setFont(8, 'bold', col);
+      doc.text(NOM_LABELS_ES[nivel] || nivel, x + 6, y + h/2 + 0.5, {baseline:'middle'});
+    }
+
+    function barH(x, y, w, h, pct, color, bgColor) {
+      fillRect(x, y, w, h, bgColor || GRAY);
+      if (pct > 0) fillRect(x, y, w * Math.min(pct,1), h, color);
+    }
+
+    function pageHeader(pageNum) {
+      fillRect(0, 0, PW, 18, NAVY);
+      setFont(9, 'bold', WHITE);
+      doc.text('TELEFLEX — NOM-035-STPS-2018  |  Resumen Ejecutivo', M, 11);
+      setFont(7, 'normal', [150,170,200]);
+      doc.text('Dr. Jaime Iván Martínez Espinoza  |  Cédula 12021447  |  Chihuahua, Chih.', M, 15.5);
+      setFont(7, 'normal', [150,170,200]);
+      doc.text(`Pág. ${pageNum}`, PW - M, 11, {align:'right'});
+    }
+
+    function pageFooter() {
+      fillRect(0, PH - 10, PW, 10, NAVY);
+      setFont(7, 'normal', [150,170,200]);
+      const fecha = new Date().toLocaleDateString('es-MX', {day:'2-digit',month:'long',year:'numeric'});
+      doc.text(`Generado el ${fecha}  |  NOM-035-STPS-2018  |  Teleflex Chihuahua`, PW/2, PH - 4, {align:'center'});
+    }
+
+    function newPage(pageNum) {
+      doc.addPage();
+      pageHeader(pageNum);
+      pageFooter();
+      return 24; // y start after header
+    }
+
+    // ── FUNCIONES DE ANÁLISIS ──
+    function getEdificios() {
+      return [...new Set([...griiData,...griiiData,...atsData]
+        .map(d => edificioOf(d)).filter(e => e && e !== '—'))].sort();
+    }
+
+    function nivelFromScore(score, type) {
+      return type === 'g3' ? nivelG3(score) : nivelG2(score);
+    }
+
+    function countsByNivel(data) {
+      const c = {nulo:0,bajo:0,medio:0,alto:0,muy_alto:0};
+      data.forEach(d => { if(c[d.nivel]!==undefined) c[d.nivel]++; });
+      return c;
+    }
+
+    function avgScore(data, key) {
+      if (!data.length) return 0;
+      return data.reduce((s,d) => s+(Number(d[key])||0),0) / data.length;
+    }
+
+    // Distribución horizontal de 5 segmentos NOM
+    function drawNomBar(x, y, w, h, counts) {
+      const total = Object.values(counts).reduce((a,b)=>a+b,0);
+      if (!total) { fillRect(x,y,w,h,GRAY); return; }
+      const niveles = ['nulo','bajo','medio','alto','muy_alto'];
+      let cx = x;
+      niveles.forEach(n => {
+        const seg = (counts[n]||0) / total * w;
+        if (seg > 0) {
+          fillRect(cx, y, seg, h, NOM_COLORS[n]);
+          cx += seg;
+        }
+      });
+      // border
+      strokeRect(x,y,w,h,GRAY2,0.2);
+    }
+
+    // ── PÁGINA 1: PORTADA ──────────────────────────────────────
+    if (msgEl) msgEl.textContent = 'Generando portada…';
+    await new Promise(r => setTimeout(r,50));
+
+    let page = 1;
+    pageHeader(page);
+    pageFooter();
+
+    // Hero section
+    fillRect(M, 22, CW, 55, NAVY2);
+    // Teal accent bar
+    fillRect(M, 22, 4, 55, TEAL);
+
+    setFont(22, 'bold', WHITE);
+    doc.text('Resumen Ejecutivo', M+10, 38);
+    setFont(13, 'normal', [180,200,230]);
+    doc.text('Evaluación de Factores de Riesgo Psicosocial', M+10, 47);
+    setFont(10, 'normal', [120,150,190]);
+    doc.text('NOM-035-STPS-2018  •  Teleflex Chihuahua', M+10, 55);
+    doc.text('Dr. Jaime Iván Martínez Espinoza  •  Cédula 12021447', M+10, 62);
+
+    // Fecha y periodo
+    const hoy = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+    setFont(9, 'normal', [180,200,230]);
+    doc.text(`Fecha de emisión: ${hoy}`, PW-M, 38, {align:'right'});
+    doc.text('Evaluación transversal', PW-M, 45, {align:'right'});
+
+    // Stats boxes en portada
+    let sy = 84;
+    const total_g2 = griiData.length;
+    const total_g3 = griiiData.length;
+    const total_ats = atsData.length;
+    const all = [...griiData,...griiiData];
+    const altos = all.filter(d=>d.nivel==='alto'||d.nivel==='muy_alto').length;
+    const edificios = getEdificios();
+
+    const boxes = [
+      { label:'Total Evaluados', val: total_g2 + total_g3, sub:'Guías II + III', color:NAVY2 },
+      { label:'Edificios', val: edificios.length, sub:'Centros de trabajo', color:TEAL },
+      { label:'Riesgo Alto/Muy Alto', val: altos, sub:'Requieren intervención', color:[198,40,40] },
+      { label:'ATS Reportados', val: total_ats, sub:'Eventos traumáticos', color:[106,27,154] },
+    ];
+    const bw = (CW - 9) / 4;
+    boxes.forEach((b, i) => {
+      const bx = M + i*(bw+3);
+      fillRect(bx, sy, bw, 28, b.color);
+      setFont(20, 'bold', WHITE);
+      doc.text(String(b.val), bx + bw/2, sy+13, {align:'center'});
+      setFont(7, 'bold', WHITE);
+      doc.text(b.label, bx + bw/2, sy+19, {align:'center'});
+      setFont(6, 'normal', [200,220,240]);
+      doc.text(b.sub, bx + bw/2, sy+24, {align:'center'});
+    });
+
+    // Leyenda NOM-035
+    sy = 118;
+    setFont(9, 'bold', TEXT);
+    doc.text('Escala de Riesgo NOM-035-STPS-2018', M, sy);
+    sy += 5;
+    const niveles = ['nulo','bajo','medio','alto','muy_alto'];
+    const lw = CW / 5;
+    niveles.forEach((n, i) => {
+      const lx = M + i*lw;
+      fillRect(lx, sy, lw-2, 8, NOM_COLORS[n]);
+      setFont(8, 'bold', WHITE);
+      doc.text(NOM_LABELS_ES[n], lx + (lw-2)/2, sy+4.5, {align:'center'});
+    });
+
+    // Distribución global
+    sy = 138;
+    setFont(10, 'bold', TEXT);
+    doc.text('Distribución Global de Riesgo — Guía II', M, sy);
+    sy += 4;
+    const g2counts = countsByNivel(griiData);
+    drawNomBar(M, sy, CW, 10, g2counts);
+    sy += 13;
+    // Labels con counts
+    niveles.forEach((n, i) => {
+      const lx = M + i*(CW/5);
+      setFont(7, 'bold', NOM_COLORS[n]);
+      doc.text(`${NOM_LABELS_ES[n]}: ${g2counts[n]||0}`, lx, sy);
+    });
+
+    sy += 8;
+    setFont(10, 'bold', TEXT);
+    doc.text('Distribución Global de Riesgo — Guía III', M, sy);
+    sy += 4;
+    const g3counts = countsByNivel(griiiData);
+    drawNomBar(M, sy, CW, 10, g3counts);
+    sy += 13;
+    niveles.forEach((n, i) => {
+      const lx = M + i*(CW/5);
+      setFont(7, 'bold', NOM_COLORS[n]);
+      doc.text(`${NOM_LABELS_ES[n]}: ${g3counts[n]||0}`, lx, sy);
+    });
+
+    // ── PÁGINA 2: RESUMEN POR EDIFICIO ────────────────────────
+    if (msgEl) msgEl.textContent = 'Generando resumen por edificio…';
+    await new Promise(r => setTimeout(r,50));
+
+    page++;
+    let y = newPage(page);
+
+    setFont(13, 'bold', NAVY);
+    doc.text('Resultados por Edificio', M, y);
+    y += 3;
+    fillRect(M, y, CW, 1, TEAL);
+    y += 6;
+
+    // Tabla de edificios
+    const edifCols = ['Edificio','Evaluados','Prom G-II','Nivel G-II','Prom G-III','Nivel G-III','Alto/Muy Alto','ATS'];
+    const edifW = [42, 22, 22, 28, 24, 28, 28, 16];
+    let ex = M;
+
+    // Header tabla
+    fillRect(M, y, CW, 8, NAVY);
+    edifCols.forEach((col, i) => {
+      setFont(7, 'bold', WHITE);
+      doc.text(col, ex + edifW[i]/2, y+4.5, {align:'center'});
+      ex += edifW[i];
+    });
+    y += 8;
+
+    edificios.forEach((edif, ei) => {
+      const g2e = griiData.filter(d=>edificioOf(d)===edif);
+      const g3e = griiiData.filter(d=>edificioOf(d)===edif);
+      const atse = atsData.filter(d=>edificioOf(d)===edif);
+      const avg2 = g2e.length ? avgScore(g2e,'score') : 0;
+      const avg3 = g3e.length ? avgScore(g3e,'score') : 0;
+      const niv2 = nivelG2(avg2);
+      const niv3 = nivelG3(avg3);
+      const altos_edif = [...g2e,...g3e].filter(d=>d.nivel==='alto'||d.nivel==='muy_alto').length;
+      const rowBg = ei % 2 === 0 ? WHITE : GRAY;
+
+      fillRect(M, y, CW, 10, rowBg);
+      strokeRect(M, y, CW, 10, GRAY2, 0.2);
+
+      ex = M;
+      const vals = [edif, g2e.length+g3e.length, avg2.toFixed(1), null, avg3.toFixed(1), null, altos_edif, atse.length];
+      vals.forEach((val, i) => {
+        if (i === 3) { riskCell(ex+1, y+1, edifW[i]-2, 8, niv2); }
+        else if (i === 5) { riskCell(ex+1, y+1, edifW[i]-2, 8, niv3); }
+        else {
+          setFont(8, i===0?'bold':'normal', i===0?NAVY:TEXT);
+          doc.text(String(val??'—'), ex + edifW[i]/2, y+5.5, {align:'center'});
+        }
+        ex += edifW[i];
+      });
+      y += 10;
+    });
+
+    y += 8;
+
+    // ── DOMINIOS GLOBALES ──
+    setFont(13, 'bold', NAVY);
+    doc.text('Promedio por Dominio (Guía II) — Global', M, y);
+    y += 3;
+    fillRect(M, y, CW, 1, TEAL);
+    y += 6;
+
+    const DOMINIOS_PDF = [
+      {key:'catAmbiente',      label:'Ambiente de Trabajo',      max:32},
+      {key:'catFactores',      label:'Factores de la Actividad', max:48},
+      {key:'catOrg',           label:'Organización del Tiempo',  max:32},
+      {key:'catLiderazgo',     label:'Liderazgo y Relaciones',   max:48},
+      {key:'catEntorno',       label:'Entorno Organizacional',   max:48},
+      {key:'catInterferencia', label:'Interferencia Trab-Fam',   max:32},
+      {key:'catLidNeg',        label:'Liderazgo Negativo',       max:16},
+    ];
+
+    const barX   = M + 52;
+    const barW   = CW - 52 - 35;
+
+    DOMINIOS_PDF.forEach(dom => {
+      const promedio = griiData.length ? avgScore(griiData, dom.key) : 0;
+      const pct = promedio / dom.max;
+      const nivel = pct<=0.25?'nulo':pct<=0.50?'bajo':pct<=0.70?'medio':pct<=0.85?'alto':'muy_alto';
+      const color = NOM_COLORS[nivel];
+
+      setFont(8, 'normal', TEXT);
+      doc.text(dom.label, M, y+3.5, {baseline:'middle'});
+      barH(barX, y, barW, 6, pct, color, GRAY);
+      setFont(7.5, 'bold', color);
+      doc.text(`${promedio.toFixed(1)} / ${dom.max}`, barX + barW + 3, y+3.5, {baseline:'middle'});
+      riskCell(barX + barW + 22, y, 22, 6, nivel);
+      y += 9;
+    });
+
+    // ── PÁGINAS 3+: DETALLE POR EDIFICIO ──────────────────────
+    for (const edif of edificios) {
+      if (msgEl) msgEl.textContent = `Generando detalle: ${edif}…`;
+      await new Promise(r => setTimeout(r,50));
+
+      page++;
+      y = newPage(page);
+
+      // Título edificio
+      fillRect(M, y-2, CW, 12, NAVY2);
+      fillRect(M, y-2, 4, 12, TEAL);
+      setFont(12, 'bold', WHITE);
+      doc.text(`🏭  ${edif}`, M+8, y+5);
+      y += 16;
+
+      const g2e  = griiData.filter(d=>edificioOf(d)===edif);
+      const g3e  = griiiData.filter(d=>edificioOf(d)===edif);
+      const atse = atsData.filter(d=>edificioOf(d)===edif);
+      const avg2 = g2e.length ? avgScore(g2e,'score') : 0;
+      const avg3 = g3e.length ? avgScore(g3e,'score') : 0;
+      const niv2 = nivelG2(avg2);
+      const niv3 = nivelG3(avg3);
+      const g2cnt = countsByNivel(g2e);
+      const g3cnt = countsByNivel(g3e);
+
+      // Stats del edificio
+      const sboxes = [
+        {label:'Evaluados G-II', val:g2e.length},
+        {label:'Evaluados G-III', val:g3e.length},
+        {label:'Prom. Guía II', val:avg2.toFixed(1)},
+        {label:'Prom. Guía III', val:avg3.toFixed(1)},
+        {label:'ATS', val:atse.length},
+        {label:'Alto/Muy Alto', val:g2e.filter(d=>d.nivel==='alto'||d.nivel==='muy_alto').length},
+      ];
+      const sbw = (CW-10)/6;
+      sboxes.forEach((s, i) => {
+        const sx = M + i*(sbw+2);
+        fillRect(sx, y, sbw, 18, i<2?NAVY:i<4?NAVY2:[70,30,100]);
+        setFont(14, 'bold', WHITE);
+        doc.text(String(s.val), sx+sbw/2, y+10, {align:'center'});
+        setFont(6, 'normal', [180,200,240]);
+        doc.text(s.label, sx+sbw/2, y+15.5, {align:'center'});
+      });
+      y += 24;
+
+      // Nivel general
+      setFont(9, 'bold', TEXT);
+      doc.text('Nivel de Riesgo General:', M, y);
+      riskCell(M+48, y-3, 28, 7, niv2);
+      setFont(7, 'normal', TEXT2);
+      doc.text('Guía II', M+78, y);
+      riskCell(M+90, y-3, 28, 7, niv3);
+      setFont(7, 'normal', TEXT2);
+      doc.text('Guía III', M+120, y);
+      y += 10;
+
+      // Barra distribución G2
+      setFont(8, 'bold', TEXT);
+      doc.text('Distribución Guía II:', M, y);
+      y += 3;
+      drawNomBar(M, y, CW, 8, g2cnt);
+      y += 10;
+      niveles.forEach((n, i) => {
+        const lx = M + i*(CW/5);
+        setFont(6.5, 'bold', NOM_COLORS[n]);
+        doc.text(`${NOM_LABELS_ES[n]}: ${g2cnt[n]||0}`, lx, y);
+      });
+      y += 7;
+
+      // Dominios del edificio
+      setFont(9, 'bold', TEXT);
+      doc.text('Dominios (Guía II):', M, y);
+      y += 4;
+
+      DOMINIOS_PDF.forEach(dom => {
+        const prom = g2e.length ? avgScore(g2e, dom.key) : 0;
+        const pct  = prom / dom.max;
+        const nivel = pct<=0.25?'nulo':pct<=0.50?'bajo':pct<=0.70?'medio':pct<=0.85?'alto':'muy_alto';
+        const color = NOM_COLORS[nivel];
+        setFont(7.5, 'normal', TEXT);
+        doc.text(dom.label, M, y+2.5, {baseline:'middle'});
+        barH(M+50, y, CW-72, 5, pct, color, GRAY);
+        setFont(7, 'bold', color);
+        doc.text(`${prom.toFixed(1)}`, M+CW-20, y+2.5, {baseline:'middle'});
+        riskCell(M+CW-17, y, 18, 5, nivel);
+        y += 7;
+      });
+
+      y += 4;
+
+      // Departamentos del edificio
+      const depts = [...new Set(g2e.map(d=>deptOf(d)).filter(Boolean))].sort();
+      if (depts.length > 0) {
+        setFont(9, 'bold', TEXT);
+        doc.text('Riesgo por Departamento:', M, y);
+        y += 3;
+
+        const dCols = ['Departamento', 'N', 'Prom.', 'Nivel G-II', 'Nivel G-III'];
+        const dW    = [60, 14, 18, 32, 32];
+        let dx = M;
+        fillRect(M, y, CW, 7, NAVY);
+        dCols.forEach((col, i) => {
+          setFont(7, 'bold', WHITE);
+          doc.text(col, dx+dW[i]/2, y+3.5, {align:'center'});
+          dx += dW[i];
+        });
+        y += 7;
+
+        depts.slice(0, 12).forEach((dept, di) => {
+          if (y > PH - 30) {
+            page++;
+            y = newPage(page);
+            // Repeat dept header
+            let dx2 = M;
+            fillRect(M, y, CW, 7, NAVY);
+            dCols.forEach((col, i) => {
+              setFont(7,'bold',WHITE);
+              doc.text(col, dx2+dW[i]/2, y+3.5, {align:'center'});
+              dx2 += dW[i];
+            });
+            y += 7;
+          }
+          const dg2  = g2e.filter(d=>deptOf(d)===dept);
+          const dg3  = g3e.filter(d=>deptOf(d)===dept);
+          const da2  = dg2.length ? avgScore(dg2,'score') : 0;
+          const da3  = dg3.length ? avgScore(dg3,'score') : 0;
+          const dn2  = nivelG2(da2);
+          const dn3  = nivelG3(da3);
+          const rowBg = di%2===0?WHITE:GRAY;
+          fillRect(M, y, CW, 8, rowBg);
+          strokeRect(M, y, CW, 8, GRAY2, 0.2);
+          let ddx = M;
+          [dept, dg2.length, da2.toFixed(1), null, null].forEach((val, i) => {
+            if (i===3) { if(dg2.length) riskCell(ddx+1,y+1,dW[i]-2,6,dn2); }
+            else if(i===4) { if(dg3.length) riskCell(ddx+1,y+1,dW[i]-2,6,dn3); }
+            else {
+              setFont(7.5, i===0?'bold':'normal', i===0?NAVY:TEXT);
+              doc.text(String(val??'—'), ddx+dW[i]/2, y+4.5, {align:'center'});
+            }
+            ddx += dW[i];
+          });
+          y += 8;
+        });
+      }
+
+      // ATS del edificio
+      if (atse.length > 0) {
+        if (y > PH - 40) { page++; y = newPage(page); }
+        y += 6;
+        setFont(9, 'bold', [198,40,40]);
+        doc.text(`⚠  Acontecimentos Traumáticos Severos (${atse.length})`, M, y);
+        y += 4;
+        const aCols = ['Empleado','Tipo de Evento','Fecha','Atención'];
+        const aW    = [70,52,28,38];
+        let ax = M;
+        fillRect(M, y, CW, 7, [198,40,40]);
+        aCols.forEach((col, i) => {
+          setFont(7,'bold',WHITE);
+          doc.text(col, ax+aW[i]/2, y+3.5, {align:'center'});
+          ax += aW[i];
+        });
+        y += 7;
+        const TIPOS = {accidente:'Accidente',violencia:'Violencia',muerte:'Muerte compañero',
+          asalto:'Asalto',desastre:'Desastre',acoso:'Acoso',otro:'Otro'};
+        const ATEN  = {si:'Sí solicita',considerar:'Lo considerará',no:'No requiere'};
+        atse.forEach((a, ai) => {
+          if (y > PH-25) { page++; y = newPage(page); }
+          const rowBg = ai%2===0?WHITE:[255,245,245];
+          fillRect(M, y, CW, 7, rowBg);
+          strokeRect(M, y, CW, 7, [239,154,154], 0.2);
+          let aax = M;
+          [a.nombre||'—', TIPOS[a.tipoEvento]||a.tipoEvento||'—',
+           (a.fechaEvento||'').toString().slice(0,10), ATEN[a.atencion]||'—'].forEach((val,i)=>{
+            setFont(7,'normal',TEXT);
+            doc.text(String(val).substring(0,30), aax+2, y+3.8, {baseline:'middle'});
+            aax += aW[i];
+          });
+          y += 7;
+        });
+      }
+    }
+
+    // ── PÁGINA FINAL: CASOS PRIORITARIOS ──────────────────────
+    if (msgEl) msgEl.textContent = 'Generando casos prioritarios…';
+    await new Promise(r => setTimeout(r,50));
+
+    page++;
+    y = newPage(page);
+
+    fillRect(M, y-2, CW, 12, [198,40,40]);
+    fillRect(M, y-2, 4, 12, [239,108,0]);
+    setFont(12, 'bold', WHITE);
+    doc.text('Casos Prioritarios — Riesgo Alto y Muy Alto', M+8, y+5);
+    y += 16;
+
+    const prioritarios = griiData
+      .filter(d=>d.nivel==='alto'||d.nivel==='muy_alto')
+      .sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0));
+
+    if (!prioritarios.length) {
+      setFont(10, 'normal', TEXT2);
+      doc.text('No se detectaron casos de riesgo Alto o Muy Alto.', M, y+10);
+    } else {
+      setFont(8, 'normal', TEXT2);
+      doc.text(`Se identificaron ${prioritarios.length} caso(s) que requieren atención o plan de acción.`, M, y);
+      y += 8;
+
+      const pCols = ['Empleado','No.','Edificio','Departamento','Puntaje','Nivel'];
+      const pW    = [52, 18, 40, 44, 18, 26];
+      let px = M;
+      fillRect(M, y, CW, 7, [198,40,40]);
+      pCols.forEach((col, i) => {
+        setFont(7,'bold',WHITE);
+        doc.text(col, px+pW[i]/2, y+3.5, {align:'center'});
+        px += pW[i];
+      });
+      y += 7;
+
+      prioritarios.slice(0,25).forEach((d, pi) => {
+        if (y > PH-25) { page++; y = newPage(page); }
+        const rowBg = pi%2===0?WHITE:[255,245,245];
+        fillRect(M, y, CW, 8, rowBg);
+        strokeRect(M, y, CW, 8, GRAY2, 0.2);
+        let ppx = M;
+        [d.nombre||'—', d.noemp||'—', edificioOf(d), deptOf(d), d.score||0, null].forEach((val,i)=>{
+          if (i===5) { riskCell(ppx+1, y+1, pW[i]-2, 6, d.nivel); }
+          else {
+            setFont(7.5, i===0?'bold':'normal', i===0?NAVY:TEXT);
+            const txt = String(val).substring(0,28);
+            doc.text(txt, ppx + pW[i]/2, y+4.5, {align:'center'});
+          }
+          ppx += pW[i];
+        });
+        y += 8;
+      });
+
+      if (prioritarios.length > 25) {
+        setFont(7.5, 'italic', TEXT2);
+        doc.text(`... y ${prioritarios.length-25} casos más. Ver Excel completo.`, M, y+6);
+      }
+    }
+
+    // Guardar PDF
+    if (msgEl) msgEl.textContent = 'Guardando PDF…';
+    await new Promise(r => setTimeout(r,50));
+    const fecha_archivo = new Date().toISOString().slice(0,10);
+    doc.save(`NOM035_ResumenEjecutivo_Teleflex_${fecha_archivo}.pdf`);
+    toast('PDF generado correctamente ✓','ok');
+
+  } catch(err) {
+    console.error('Error generando PDF:', err);
+    toast('Error al generar PDF: ' + err.message, 'err');
+  } finally {
+    if (overlay) overlay.classList.remove('show');
+  }
+}
+
 </script>
 </body>
 </html>

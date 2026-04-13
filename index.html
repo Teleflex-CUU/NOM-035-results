@@ -289,7 +289,7 @@ tbody tr:last-child{border-bottom:none}
     </button>
     <div class="sb-sec">Exportar</div>
     <button class="sb-btn" onclick="generarPDF()" id="btn-pdf">
-      <span class="sb-icon">📄</span> Resumen Ejecutivo PDF
+      <span class="sb-icon">📄</span> Analisis de Resultados PDF
     </button>
     <button class="sb-btn" onclick="exportExcel()">
       <span class="sb-icon">📥</span> Excel completo
@@ -309,7 +309,7 @@ tbody tr:last-child{border-bottom:none}
   <div class="tb-right">
     <span class="last-sync" id="last-sync"></span>
     <button id="sync-btn" onclick="syncData()">⟳ Sincronizar</button>
-    <button class="btn btn-navy btn-sm" onclick="generarPDF()" id="btn-pdf-top">📄 PDF Ejecutivo</button>
+    <button class="btn btn-navy btn-sm" onclick="generarPDF()" id="btn-pdf-top">📄 PDF Resultados</button>
     <button class="btn btn-outline btn-sm" onclick="exportExcel()">📥 Excel</button>
   </div>
 </div>
@@ -645,7 +645,9 @@ function avg(arr, key) {
 
 function getUniqueEdificios() {
   const all = [...griiData,...griiiData,...atsData];
-  return [...new Set(all.map(d => edificioOf(d)).filter(e => e && e !== '—'))].sort();
+  return [...new Set(all.map(d => edificioOf(d))
+    .filter(e => e && e !== '—' && e.trim() !== '' &&
+      e.toLowerCase() !== 'planta' && e.toLowerCase() !== 'sin asignar'))].sort();
 }
 
 function populateEdificioSelects() {
@@ -1397,8 +1399,13 @@ async function generarPDF() {
 
     // ── FUNCIONES DE ANÁLISIS ──
     function getEdificios() {
-      return [...new Set([...griiData,...griiiData,...atsData]
-        .map(d => edificioOf(d)).filter(e => e && e !== '—'))].sort();
+      const VALID_ORDER = ['Americas (13000)','Barrancas (13200)','Cantera (13500)','Juventud (13700)',
+        'Americas','Barrancas','Cantera','Juventud'];
+      const found = [...new Set([...griiData,...griiiData,...atsData]
+        .map(d => edificioOf(d))
+        .filter(e => e && e !== '—' && e.trim() !== '' &&
+          e.toLowerCase() !== 'planta' && e.toLowerCase() !== 'sin asignar'))];
+      return found.sort((a,b) => a.localeCompare(b, 'es'));
     }
 
     function nivelFromScore(score, type) {
@@ -1447,7 +1454,7 @@ async function generarPDF() {
     fillRect(M, 22, 4, 55, TEAL);
 
     setFont(22, 'bold', WHITE);
-    doc.text('Resumen Ejecutivo', M+10, 38);
+    doc.text('Analisis de Resultados', M+10, 38);
     setFont(13, 'normal', [180,200,230]);
     doc.text('Evaluación de Factores de Riesgo Psicosocial', M+10, 47);
     setFont(10, 'normal', [120,150,190]);
@@ -1633,7 +1640,7 @@ async function generarPDF() {
       fillRect(M, y-2, CW, 12, NAVY2);
       fillRect(M, y-2, 4, 12, TEAL);
       setFont(12, 'bold', WHITE);
-      doc.text(`🏭  ${edif}`, M+8, y+5);
+      doc.text(`  ${edif}`, M+8, y+5);
       y += 16;
 
       const g2e  = griiData.filter(d=>edificioOf(d)===edif);
@@ -1771,7 +1778,7 @@ async function generarPDF() {
         if (y > PH - 40) { page++; y = newPage(page); }
         y += 6;
         setFont(9, 'bold', [198,40,40]);
-        doc.text(`⚠  Acontecimentos Traumáticos Severos (${atse.length})`, M, y);
+        doc.text(`  Acontecimentos Traumáticos Severos (${atse.length})`, M, y);
         y += 4;
         const aCols = ['Empleado','Tipo de Evento','Fecha','Atención'];
         const aW    = [70,52,28,38];
@@ -1867,7 +1874,7 @@ async function generarPDF() {
     if (msgEl) msgEl.textContent = 'Guardando PDF…';
     await new Promise(r => setTimeout(r,50));
     const fecha_archivo = new Date().toISOString().slice(0,10);
-    doc.save(`NOM035_ResumenEjecutivo_Teleflex_${fecha_archivo}.pdf`);
+    doc.save(`NOM035_AnalisisResultados_Teleflex_${fecha_archivo}.pdf`);
     toast('PDF generado correctamente ✓','ok');
 
   } catch(err) {

@@ -309,6 +309,8 @@ tbody tr:last-child{border-bottom:none}
   <div class="tb-right">
     <span class="last-sync" id="last-sync"></span>
     <button id="sync-btn" onclick="syncData()">⟳ Sincronizar</button>
+    <button class="btn btn-navy btn-sm" onclick="generarPDF()" id="btn-pdf-top">📄 PDF Resultados</button>
+    <button class="btn btn-outline btn-sm" onclick="exportExcel()">📥 Excel</button>
   </div>
 </div>
 
@@ -1036,7 +1038,7 @@ function renderDepartamentos() {
       const deptNivel = nivelG2(deptAvgScore);
       const deptDomCells = DOMINIOS.map(d=>{
         const a = deptItems.length ? avg(deptItems,d.key) : 0;
-        const n = nivelG2((a/d.max)*90);
+        const n = nivelDominio(d.key, a);
         return `<td style="background:${NOM_COLORS[n]}22;color:${NOM_COLORS[n]};font-weight:700">${a.toFixed(0)}</td>`;
       }).join('');
       // G3 for dept
@@ -1227,7 +1229,7 @@ function showDetail(type, idx) {
     const domRows = DOMINIOS.map(dom=>{
       const val = Number(d[dom.key])||0;
       const pct = Math.round((val/dom.max)*100);
-      const nivel = nivelG2((val/dom.max)*90);
+      const nivel = nivelDominio(dom.key, val);
       return `<div class="dom-row">
         <div class="dom-label">${dom.label}</div>
         <div class="dom-bar-bg"><div class="dom-bar" style="width:${pct}%;background:${NOM_COLORS[nivel]}"></div></div>

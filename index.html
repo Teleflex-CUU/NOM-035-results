@@ -309,6 +309,8 @@ tbody tr:last-child{border-bottom:none}
   <div class="tb-right">
     <span class="last-sync" id="last-sync"></span>
     <button id="sync-btn" onclick="syncData()">⟳ Sincronizar</button>
+    <button class="btn btn-navy btn-sm" onclick="generarPDF()" id="btn-pdf-top">📄 PDF Resultados</button>
+    <button class="btn btn-outline btn-sm" onclick="exportExcel()">📥 Excel</button>
   </div>
 </div>
 
@@ -639,6 +641,10 @@ const NOM_DOM_RANGOS = {
   catInterferencia: [4,  7, 10,  13],
   catLidNeg:        [0,  3,  5,   7],
 };
+function nivelPct(nivel) {
+  return {nulo:5,bajo:25,medio:50,alto:75,muy_alto:100}[nivel] || 0;
+}
+
 function nivelDominio(domKey, score) {
   const s = Number(score) || 0;
   const r = NOM_DOM_RANGOS[domKey];
@@ -1230,7 +1236,7 @@ function showDetail(type, idx) {
       const nivel = nivelDominio(dom.key, val);
       return `<div class="dom-row">
         <div class="dom-label">${dom.label}</div>
-        <div class="dom-bar-bg"><div class="dom-bar" style="width:${pct}%;background:${NOM_COLORS[nivel]}"></div></div>
+        <div class="dom-bar-bg"><div class="dom-bar" style="width:${nivelPct(nivel)}%;background:${NOM_COLORS[nivel]};transition:width .5s ease"></div></div>
         <div class="dom-val">${val}</div>
         <div class="dom-nivel">${riskBadge(nivel)}</div>
       </div>`;
@@ -1246,7 +1252,12 @@ function showDetail(type, idx) {
       </div>
       <hr style="border:none;border-top:1px solid var(--border);margin:14px 0"/>
       <div style="font-weight:700;color:var(--navy);font-size:13px;margin-bottom:10px">Desglose por Dominio</div>
-      <div class="dom-grid">${domRows}</div>`;
+      <div class="dom-grid">${domRows}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border2);font-size:10px;color:var(--text3)">
+        <span style="font-weight:700;color:var(--text2)">Escala:</span>
+        <span>Nulo=5%</span><span>Bajo=25%</span><span>Medio=50%</span><span>Alto=75%</span><span>Muy Alto=100%</span>
+        <span style="margin-left:6px;color:var(--text4)">— La barra refleja nivel de riesgo; el numero es el puntaje del dominio</span>
+      </div>`;
   } else if (type==='ats') {
     b.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">

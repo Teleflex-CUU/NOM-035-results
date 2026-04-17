@@ -333,7 +333,7 @@ tbody tr:last-child{border-bottom:none}
   </div>
 
   <div class="stats-grid" id="global-stats">
-    <div class="stat"><div class="stat-lbl">Total Evaluados</div><div class="stat-val" id="g-total">0</div><div class="stat-sub">Guías II + III</div></div>
+    <div class="stat"><div class="stat-lbl">Total Evaluados</div><div class="stat-val" id="g-total">0</div><div class="stat-sub">Personas evaluadas</div></div>
     <div class="stat"><div class="stat-lbl">Muy Alto ⚠️</div><div class="stat-val" id="g-vhigh" style="color:var(--nom-vhigh)">0</div><div class="stat-sub">Intervención urgente</div></div>
     <div class="stat"><div class="stat-lbl">Alto</div><div class="stat-val" id="g-high" style="color:var(--nom-high)">0</div><div class="stat-sub">Plan de acción</div></div>
     <div class="stat"><div class="stat-lbl">Medio</div><div class="stat-val" id="g-med" style="color:var(--nom-med)">0</div><div class="stat-sub">Seguimiento</div></div>
@@ -383,7 +383,7 @@ tbody tr:last-child{border-bottom:none}
     <div class="card-head"><div class="card-title">Detalle por Edificio</div></div>
     <div class="card-body" style="padding:0">
       <div class="tbl-wrap">
-        <table><thead><tr><th>Edificio</th><th>Evaluados</th><th>Prom. G-II</th><th>Nivel G-II</th><th>Prom. G-III</th><th>Nivel G-III</th><th>Nulo</th><th>Bajo</th><th>Medio</th><th>Alto</th><th>Muy Alto</th><th>ATS</th></tr></thead>
+        <table><thead><tr><th>Edificio</th><th>Personas</th><th>Prom. G-II</th><th>Nivel G-II</th><th>Prom. G-III</th><th>Nivel G-III</th><th>Nulo</th><th>Bajo</th><th>Medio</th><th>Alto</th><th>Muy Alto</th><th>ATS</th></tr></thead>
         <tbody id="edificio-tbody"></tbody></table>
       </div>
     </div>
@@ -757,12 +757,14 @@ function updateBadges() {
 // ════════════════════════════════════
 function renderGlobal() {
   const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  const allG2G3 = [...griiData,...griiiData];
-  sv('g-total', allG2G3.length);
-  sv('g-vhigh', allG2G3.filter(d=>d.nivel==='muy_alto').length);
-  sv('g-high',  allG2G3.filter(d=>d.nivel==='alto').length);
-  sv('g-med',   allG2G3.filter(d=>d.nivel==='medio').length);
-  sv('g-low',   allG2G3.filter(d=>d.nivel==='nulo'||d.nivel==='bajo').length);
+  // Personas únicas = empleados que tienen Guía II (la encuesta principal)
+  // Los niveles se basan en Guía II como indicador de riesgo psicosocial
+  const personasUnicas = new Set([...griiData,...griiiData].map(d=>d.noemp||d.nombre||'?')).size;
+  sv('g-total', griiData.length); // personas evaluadas con Guía II
+  sv('g-vhigh', griiData.filter(d=>d.nivel==='muy_alto').length);
+  sv('g-high',  griiData.filter(d=>d.nivel==='alto').length);
+  sv('g-med',   griiData.filter(d=>d.nivel==='medio').length);
+  sv('g-low',   griiData.filter(d=>d.nivel==='nulo'||d.nivel==='bajo').length);
   sv('g-ats', atsData.length);
 
   // Donut G2
@@ -775,7 +777,8 @@ function renderGlobal() {
   // Casos prioritarios
   const tbody = document.getElementById('priority-tbody');
   if (tbody) {
-    const casos = [...griiData.filter(d=>d.nivel==='alto'||d.nivel==='muy_alto')]
+    const casos = griiData
+      .filter(d=>d.nivel==='alto'||d.nivel==='muy_alto')
       .sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)).slice(0,20);
     if (!casos.length) {
       tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">Sin casos de riesgo alto o muy alto ✓</td></tr>';
@@ -1376,7 +1379,7 @@ async function generarPDF() {
     function pageHeader(pageNum) {
       fillRect(0, 0, PW, 18, NAVY);
       setFont(9, 'bold', WHITE);
-      doc.text('TELEFLEX — NOM-035-STPS-2018  |  Analisis de resultados', M, 11);
+      doc.text('TELEFLEX — NOM-035-STPS-2018  |  Resumen Ejecutivo', M, 11);
       setFont(7, 'normal', [150,170,200]);
       doc.text('Dr. Jaime Iván Martínez Espinoza  |  Cédula 12021447  |  Chihuahua, Chih.', M, 15.5);
       setFont(7, 'normal', [150,170,200]);
@@ -1472,12 +1475,12 @@ async function generarPDF() {
     const total_g2 = griiData.length;
     const total_g3 = griiiData.length;
     const total_ats = atsData.length;
-    const all = [...griiData,...griiiData];
-    const altos = all.filter(d=>d.nivel==='alto'||d.nivel==='muy_alto').length;
+    // Altos calculados solo sobre Guía II (no duplicar con G3)
+    const altos = griiData.filter(d=>d.nivel==='alto'||d.nivel==='muy_alto').length;
     const edificios = getEdificios();
 
     const boxes = [
-      { label:'Total Evaluados', val: total_g2 + total_g3, sub:'Guías II + III', color:NAVY2 },
+      { label:'Total Evaluados', val: total_g2, sub:'Personas evaluadas', color:NAVY2 },
       { label:'Edificios', val: edificios.length, sub:'Centros de trabajo', color:TEAL },
       { label:'Riesgo Alto/Muy Alto', val: altos, sub:'Requieren intervención', color:[198,40,40] },
       { label:'ATS Reportados', val: total_ats, sub:'Eventos traumáticos', color:[106,27,154] },
@@ -1571,7 +1574,7 @@ async function generarPDF() {
       const avg3 = g3e.length ? avgScore(g3e,'score') : 0;
       const niv2 = nivelG2(avg2);
       const niv3 = nivelG3(avg3);
-      const altos_edif = [...g2e,...g3e].filter(d=>d.nivel==='alto'||d.nivel==='muy_alto').length;
+      const altos_edif = g2e.filter(d=>d.nivel==='alto'||d.nivel==='muy_alto').length;
       const rowBg = ei % 2 === 0 ? WHITE : GRAY;
 
       fillRect(M, y, CW, 10, rowBg);

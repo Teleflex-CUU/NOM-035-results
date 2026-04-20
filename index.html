@@ -627,12 +627,14 @@ function nivelG2(score) {
   return s<=20?'nulo':s<=45?'bajo':s<=70?'medio':s<=90?'alto':'muy_alto';
 }
 function nivelG3(score) {
+  // Rangos oficiales NOM-035 Guía III (Tabla calificación final)
   const s = Number(score) || 0;
-  return s<=10?'nulo':s<=20?'bajo':s<=30?'medio':s<=40?'alto':'muy_alto';
+  return s<=50?'nulo':s<=75?'bajo':s<=99?'medio':s<=140?'alto':'muy_alto';
 }
 
 // Rangos OFICIALES NOM-035 por dominio (Apéndice C de la norma)
-const NOM_DOM_RANGOS = {
+// Rangos por dominio — Guía II (Tabla 3, NOM-035)
+const NOM_DOM_RANGOS_G2 = {
   catAmbiente:      [2,  5,  9,  13],
   catFactores:      [6, 11, 16,  22],
   catOrg:           [2,  4,  6,   9],
@@ -641,6 +643,16 @@ const NOM_DOM_RANGOS = {
   catInterferencia: [4,  7, 10,  13],
   catLidNeg:        [0,  3,  5,   7],
 };
+// Rangos por dominio — Guía III (Tabla 6, NOM-035)
+const NOM_DOM_RANGOS_G3 = {
+  catLiderazgo:     [9, 12, 16,  20],
+  catRelaciones:    [10,13, 17,  21],
+  catParticipacion: [4,  6,  8,  10],
+  catDistribucion:  [6, 10, 14,  18],
+  catCapacitacion:  [4,  6,  8,  10],
+};
+// Alias para compatibilidad (dominios G2 por defecto)
+const NOM_DOM_RANGOS = NOM_DOM_RANGOS_G2;
 function nivelPct(nivel) {
   return {nulo:5,bajo:25,medio:50,alto:75,muy_alto:100}[nivel] || 0;
 }

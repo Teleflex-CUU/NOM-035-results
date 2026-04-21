@@ -856,7 +856,7 @@ function renderDominiosBars(containerId, data) {
   const el = document.getElementById(containerId); if(!el) return;
   if (!data.length) { el.innerHTML='<p style="color:var(--text3)">Sin datos</p>'; return; }
   el.innerHTML = DOMINIOS.map(d => {
-    const promedio = avg(data, d.key);
+const promedio = Math.round(avg(data, d.key));  // Redondear el puntaje a número entero
     const pct = Math.round((promedio/d.max)*100);
     const nivel = nivelDominio(d.key, promedio);
     return `<div class="dom-row">
@@ -996,20 +996,20 @@ function renderDominios() {
   }
   if (tbody) {
     tbody.innerHTML = DOMINIOS.map(d => {
-      const globalAvg = griiData.length ? avg(griiData, d.key) : 0;
-      const globalNivel = nivelG2((globalAvg/d.max)*90);
-      const edifCells = edificios.map(e => {
-        const ed = griiData.filter(x=>edificioOf(x)===e);
-        if (!ed.length) return '<td>—</td>';
-        const a = avg(ed, d.key);
-        const n = nivelDominio(d.key, a);
-        return `<td>${riskCell(n)}<br><small style="color:var(--text3)">${a.toFixed(1)}</small></td>`;
-      }).join('');
-      return `<tr>
-        <td style="font-weight:600;color:var(--text2)">${d.label}</td>
-        ${edifCells}
-        <td>${riskCell(globalNivel)}<br><small style="color:var(--text3)">${globalAvg.toFixed(1)}</small></td>
-      </tr>`;
+const globalAvg = griiData.length ? Math.round(avg(griiData, d.key)) : 0;
+const globalNivel = nivelG2((globalAvg/d.max)*90);
+const edifCells = edificios.map(e => {
+  const ed = griiData.filter(x => edificioOf(x) === e);
+  if (!ed.length) return '<td>—</td>';
+  const a = avg(ed, d.key);
+  const n = nivelDominio(d.key, a);
+  return `<td>${riskCell(n)}<br><small style="color:var(--text3)">${Math.round(a)}</small></td>`; // Redondeando a entero
+}).join('');
+return `<tr>
+  <td style="font-weight:600;color:var(--text2)">${d.label}</td>
+  ${edifCells}
+  <td>${riskCell(globalNivel)}<br><small style="color:var(--text3)">${Math.round(globalAvg)}</small></td> <!-- Redondeando a entero --> 
+</tr>`;
     }).join('');
   }
 }
@@ -1245,8 +1245,7 @@ function showDetail(type, idx) {
     const domRows = DOMINIOS.map(dom=>{
       const val = Number(d[dom.key])||0;
       const pct = Math.round((val/dom.max)*100);
-      const nivel = nivelDominio(dom.key, val);
-      return `<div class="dom-row">
+      const nivel = nivelDominio(d.key, Math.round(promedio));      return `<div class="dom-row">
         <div class="dom-label">${dom.label}</div>
         <div class="dom-bar-bg"><div class="dom-bar" style="width:${nivelPct(nivel)}%;background:${NOM_COLORS[nivel]};transition:width .5s ease"></div></div>
         <div class="dom-val">${val}</div>

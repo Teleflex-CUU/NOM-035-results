@@ -1352,7 +1352,7 @@ function toast(msg, type) {
   // Auto sync
   syncData();
   setInterval(syncData, 60000);
-})();
+};
 
 window.addEventListener('error',e=>console.error('Error:',e.message));
 window.addEventListener('unhandledrejection',e=>console.warn('Rejected:',e.reason));
@@ -1949,9 +1949,6 @@ async function generarPDF() {
   } finally {
     if (overlay) overlay.classList.remove('show');
   }
-}
-
-
   const rows = lista.map((e,i) => `<tr style="background:${i%2?'var(--bg)':'var(--white)'};font-size:13px">
     <td style="padding:8px 12px;color:var(--text3)">${e.noemp}</td>
     <td style="padding:8px 12px;font-weight:600">${e.nombre}</td>

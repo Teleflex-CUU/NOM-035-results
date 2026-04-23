@@ -1364,9 +1364,10 @@ async function generarPDF() {
   const subEl   = document.getElementById('pdf-sub');
   if (overlay) overlay.classList.add('show');
 }
+  
   // Pequeño delay para que se muestre el overlay
   await new Promise(r => setTimeout(r, 100));
-
+  
   try {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'letter' });

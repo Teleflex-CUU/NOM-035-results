@@ -1403,6 +1403,8 @@ async function generarPDF() {
     const NOM_LABELS_ES = {
       nulo:'Nulo', bajo:'Bajo', medio:'Medio', alto:'Alto', muy_alto:'Muy Alto'
     };
+    if (overlay) overlay.classList.remove('show');
+}
 
     // ── UTILIDADES ──
     function setFont(size, style, color) {

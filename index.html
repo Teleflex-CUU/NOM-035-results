@@ -1352,8 +1352,7 @@ function toast(msg, type) {
   // Auto sync
   syncData();
   setInterval(syncData, 60000);
-};
-
+}
 window.addEventListener('error',e=>console.error('Error:',e.message));
 window.addEventListener('unhandledrejection',e=>console.warn('Rejected:',e.reason));
 

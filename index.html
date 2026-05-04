@@ -229,8 +229,8 @@ const NOM_NIVELES = ['nulo','bajo','medio','alto','muy_alto'];
 // ══════════════════════════════════════════════════
 //  HELPERS
 // ══════════════════════════════════════════════════
-function nivelG2(s){s=Number(s)||0;return s<=20?'nulo':s<=45?'bajo':s<=70?'medio':s<=90?'alto':'muy_alto';}
-function nivelG3(s){s=Number(s)||0;return s<=50?'nulo':s<=75?'bajo':s<=99?'medio':s<=140?'alto':'muy_alto';}
+function nivelG2(s){s=Number(s)||0;return s<50?'nulo':s<75?'bajo':s<99?'medio':s<140?'alto':'muy_alto';}
+function nivelG3(s){s=Number(s)||0;return s<50?'nulo':s<75?'bajo':s<99?'medio':s<140?'alto':'muy_alto';}
 function nivelDom(rangos,s){s=Number(s)||0;if(s<=rangos[0])return 'nulo';if(s<=rangos[1])return 'bajo';if(s<=rangos[2])return 'medio';if(s<=rangos[3])return 'alto';return 'muy_alto';}
 function nivelPct(n){return {nulo:5,bajo:25,medio:50,alto:75,muy_alto:100}[n]||0;}
 function avg(arr,key){if(!arr.length)return 0;return arr.reduce((s,d)=>s+(Number(d[key])||0),0)/arr.length;}
@@ -360,7 +360,7 @@ function renderGlobal(el){
         <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Escala NOM-035</div>
         ${['nulo','bajo','medio','alto','muy_alto'].map(n=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
           <span class="badge badge-${n}" style="width:70px;justify-content:center">${NOM_LABELS[n]}</span>
-          <span style="font-size:11px;color:var(--text2)">${{nulo:'0–20',bajo:'21–45',medio:'46–70',alto:'71–90',muy_alto:'91+'}[n]} pts</span>
+          <span style="font-size:11px;color:var(--text2)">${{nulo:'0–49',bajo:'50–74',medio:'75–98',alto:'99–139',muy_alto:'140+'}[n]} pts</span>
         </div>`).join('')}
       </div>
     </div>
@@ -399,7 +399,7 @@ function renderDomBars(el, data, dominios){
     return `<div class="dom-row">
       <div class="dom-label">${d.label}</div>
       <div class="dom-bar-bg"><div class="dom-bar" style="width:${pct}%;background:${color}"></div></div>
-      <div class="dom-val">${prom.toFixed(1)}</div>
+      <div class="dom-val">${prom.toFixed(0)}</div>
       <div class="dom-nivel">${badge(nivel)}</div>
     </div>`;
   }).join('');
@@ -423,9 +423,9 @@ function renderEdificios(el){
     return `<tr onclick="showEdifDetail('${edif}')" style="cursor:pointer">
       <td style="font-weight:600">${edif.replace(/ \(\d+\)/,'')}</td>
       <td style="text-align:center">${n}</td>
-      <td style="text-align:center">${avgS.toFixed(1)}</td>
+      <td style="text-align:center">${avgS.toFixed(0)}</td>
       <td>${badge(niv)}</td>
-      <td style="text-align:center">${avgG3.toFixed(1)}</td>
+      <td style="text-align:center">${avgG3.toFixed(0)}</td>
       <td>${badge(nivG3)}</td>
       <td style="text-align:center;color:${altos>0?'var(--c-alto)':'var(--c-nulo)'};font-weight:700">${altos}</td>
       <td style="text-align:center">${atse.length}</td>
@@ -481,7 +481,7 @@ function showEdifDetail(edif){
     return `<div class="dom-row">
       <div class="dom-label">${d.label}</div>
       <div class="dom-bar-bg"><div class="dom-bar" style="width:${pct}%;background:${color}"></div></div>
-      <div class="dom-val">${prom.toFixed(1)}</div>
+      <div class="dom-val">${prom.toFixed(0)}</div>
       <div class="dom-nivel">${badge(nivel)}</div>
     </div>`;
   }).join('');
@@ -489,7 +489,7 @@ function showEdifDetail(edif){
     <div class="modal-name">🏭 ${edif}</div>
     <div class="modal-grid">
       <div class="modal-field"><label>Evaluados</label><span>${g2e.length}</span></div>
-      <div class="modal-field"><label>Score promedio</label><span>${avg(g2e,'score').toFixed(1)} pts</span></div>
+      <div class="modal-field"><label>Score promedio</label><span>${avg(g2e,'score').toFixed(0)} pts</span></div>
       <div class="modal-field"><label>Nivel Global</label><span>${badge(nivelG2(avg(g2e,'score')))}</span></div>
       <div class="modal-field"><label>Alto/Muy Alto</label><span style="color:var(--c-alto);font-weight:700">${g2e.filter(d=>d.nivel==='alto'||d.nivel==='muy_alto').length}</span></div>
     </div>
@@ -510,11 +510,11 @@ function renderDominios(el){
       const g2e  = G2.filter(r=>edificioOf(r)===e);
       const prom = avg(g2e, d.key);
       const niv  = nivelDom(d.rangos, prom);
-      return `<td style="text-align:center">${badge(niv)}<br><small style="color:var(--text3)">${prom.toFixed(1)}</small></td>`;
+      return `<td style="text-align:center">${badge(niv)}<br><small style="color:var(--text3)">${prom.toFixed(0)}</small></td>`;
     }).join('');
     return `<tr>
       <td style="font-weight:600">${d.label}</td>
-      <td style="text-align:center">${globalProm.toFixed(1)}</td>
+      <td style="text-align:center">${globalProm.toFixed(0)}</td>
       <td>${badge(globalNiv)}</td>
       ${edifCols}
     </tr>`;
@@ -565,7 +565,7 @@ function renderDepartamentos(el){
     return `<tr>
       <td style="font-weight:600">${dept}</td>
       <td style="text-align:center">${n}</td>
-      <td style="text-align:center">${avgS.toFixed(1)}</td>
+      <td style="text-align:center">${avgS.toFixed(0)}</td>
       <td>${badge(niv)}</td>
       <td style="text-align:center;color:${altos>0?'var(--c-alto)':'var(--c-nulo)'};font-weight:700">${altos}</td>
       <td style="font-size:11px;color:var(--text3)">${edif}</td>
@@ -887,7 +887,7 @@ async function generarPDF(){
       doc.setFillColor(...(ei%2?GRAY:[255,255,255]));doc.rect(M,y,CW,7,'F');
       doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(...TEXT);
       let rx=M;
-      [edif.replace(/ \(\d+\)/,''),g2e.length,avgG2e.toFixed(1),'',avgG3e.toFixed(1),''].forEach((v,i)=>{
+      [edif.replace(/ \(\d+\)/,''),g2e.length,avgG2e.toFixed(0),'',avgG3e.toFixed(0),''].forEach((v,i)=>{
         if(i===3) cell(rx,y+0.5,thW[i]-2,6,nivG2e);
         else if(i===5) cell(rx,y+0.5,thW[i]-2,6,nivG3e);
         else doc.text(String(v),rx+2,y+4.5);
@@ -909,7 +909,7 @@ async function generarPDF(){
       doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(...TEXT);
       doc.text(d.label,M,y+3.5);
       bar(M+48,y,CW-80,5,pct,c,GRAY);
-      doc.setFontSize(7);doc.setTextColor(...TEXT2);doc.text(prom.toFixed(1),M+CW-28,y+3.5);
+      doc.setFontSize(7);doc.setTextColor(...TEXT2);doc.text(prom.toFixed(0),M+CW-28,y+3.5);
       cell(M+CW-22,y,20,5.5,nivel);
       y+=8;
     });

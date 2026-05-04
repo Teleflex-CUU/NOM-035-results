@@ -16,8 +16,8 @@
   --border:#E2E8F0;--border2:#CBD5E1;
   --green:#15803D;--amber:#B45309;--red:#991B1B;--purple:#6D28D9;--yellow:#92400E;
   --r:8px;--r2:12px;
-  --c-nulo:#15803D;--c-bajo:#B45309;--c-medio:#C05621;--c-alto:#991B1B;--c-muy_alto:#6D28D9;
-  --bg-nulo:#D1FAE5;--bg-bajo:#FEF3C7;--bg-medio:#FFEDD5;--bg-alto:#FEE2E2;--bg-muy_alto:#EDE9FE;
+  --c-nulo:#0E7490;--c-bajo:#5B8C00;--c-medio:#B8860B;--c-alto:#CC4400;--c-muy_alto:#8B0000;
+  --bg-nulo:#CFFAFE;--bg-bajo:#EAF5C0;--bg-medio:#FFF8C0;--bg-alto:#FFE0CC;--bg-muy_alto:#F5C0C0;
 }
 body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
 
@@ -223,7 +223,7 @@ const DOMINIOS_G3 = [
   {key:'catCapacitacion', label:'Capacitación',        max:10, rangos:[4,6,8,10]},
 ];
 const NOM_LABELS = {nulo:'Nulo',bajo:'Bajo',medio:'Medio',alto:'Alto',muy_alto:'Muy Alto'};
-const NOM_COLORS_HEX = {nulo:'#15803D',bajo:'#B45309',medio:'#C05621',alto:'#991B1B',muy_alto:'#6D28D9'};
+const NOM_COLORS_HEX = {nulo:'#0E7490',bajo:'#5B8C00',medio:'#B8860B',alto:'#CC4400',muy_alto:'#8B0000'};
 const NOM_NIVELES = ['nulo','bajo','medio','alto','muy_alto'];
 
 // ══════════════════════════════════════════════════
@@ -825,8 +825,8 @@ async function generarPDF(){
     const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
     const PW=215.9,PH=279.4,M=14,CW=PW-M*2;
     const NAVY=[13,43,90],WHITE=[255,255,255],GRAY=[240,244,250],TEXT=[15,23,42],TEXT2=[100,116,139];
-    const NOM_C={nulo:[46,125,50],bajo:[249,168,37],medio:[239,108,0],alto:[198,40,40],muy_alto:[106,27,154]};
-    const NOM_BG={nulo:[232,245,233],bajo:[255,248,225],medio:[255,243,224],alto:[255,235,238],muy_alto:[243,229,245]};
+    const NOM_C={nulo:[14,116,144],bajo:[91,140,0],medio:[184,134,11],alto:[204,68,0],muy_alto:[139,0,0]};
+    const NOM_BG={nulo:[207,250,254],bajo:[234,245,192],medio:[255,248,192],alto:[255,224,204],muy_alto:[245,192,192]};
     const LABELS={nulo:'Nulo',bajo:'Bajo',medio:'Medio',alto:'Alto',muy_alto:'Muy Alto'};
 
     function hdr(p){doc.setFillColor(...NAVY);doc.rect(0,0,PW,16,'F');doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(...WHITE);doc.text('TELEFLEX — NOM-035-STPS-2018  |  Análisis de Resultados',M,10);doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(150,170,200);doc.text('Dr. Jaime Iván Martínez Espinoza  |  Cédula 12021447',M,14.5);doc.text('Pág.'+p,PW-M,10,{align:'right'});}

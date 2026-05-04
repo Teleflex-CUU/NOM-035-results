@@ -285,8 +285,8 @@ async function sincronizar(){
     const r = await fetch(GAS_URL+'?action=getAll',{redirect:'follow'});
     const d = await r.json();
     if(!d.ok)throw new Error(d.error||'Error GAS');
-    G2  = d.grii  ||[];
-    G3  = d.griii ||[];
+    G2  = (d.grii  ||[]).map(r=>({...r, score:Number(r.score)||0, nivel:nivelG2(Number(r.score)||0)}));
+    G3  = (d.griii ||[]).map(r=>({...r, score:Number(r.score)||0, nivel:nivelG3(Number(r.score)||0)}));
     ATS = d.ats   ||[];
     document.getElementById('cnt-g2').textContent  = G2.length;
     document.getElementById('cnt-g3').textContent  = G3.length;
@@ -707,9 +707,11 @@ function renderTabla(el, tipo){
 
   const rows = data.map((d,i)=>{
     const tds = cols.map(c=>{
-      if(c==='nivel') return `<td>${badge(d.nivel||'')}</td>`;
+      if(c==='nivel') return `<td>${badge(d.nivel||nivelG2(d.score))}</td>`;
+      if(c==='score') return `<td>${Math.round(Number(d[c])||0)}</td>`;
       if(c==='nombre') return `<td style="font-weight:600;white-space:nowrap">${d[c]||'—'}</td>`;
       if(c==='planta') return `<td style="font-size:11px">${(d[c]||'').replace(/ \(\d+\)/,'')}</td>`;
+      if(typeof d[c]==='number'||(!isNaN(Number(d[c]))&&d[c]!==''&&d[c]!==null)) return `<td>${Math.round(Number(d[c])||0)}</td>`;
       return `<td>${d[c]||'—'}</td>`;
     }).join('');
     return `<tr style="background:${i%2?'var(--bg)':'var(--white)'}" onclick="showDetail('${tipo}',${i})">${tds}</tr>`;
@@ -777,7 +779,7 @@ function showDetail(tipo, idx){
         <div class="modal-field"><label>Departamento</label><span>${d.dept||'—'}</span></div>
         <div class="modal-field"><label>Turno</label><span>${d.turno||'—'}</span></div>
         <div class="modal-field"><label>Categoría</label><span>${d.categoria||'—'}</span></div>
-        <div class="modal-field"><label>Puntaje Total</label><span style="font-size:20px;font-weight:800;color:var(--navy)">${d.score||0} pts</span></div>
+        <div class="modal-field"><label>Puntaje Total</label><span style="font-size:20px;font-weight:800;color:var(--navy)">${Math.round(Number(d.score)||0)} pts</span></div>
         <div class="modal-field"><label>Nivel de Riesgo</label><span>${badge(d.nivel||nivelFn(d.score))}</span></div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px">Desglose por Dominio</div>
